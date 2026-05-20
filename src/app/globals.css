@@ -1,26 +1,382 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --radius-md: var(--radius);
 }
 
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --radius: 0.5rem;
+  }
+
+  /* Nalanda Career Academy Theme - Academic, Royal, Navy/Gold/Cream */
+  .theme-nalanda {
+    --primary: #800020; /* deep maroon */
+    --primary-foreground: #FAF6EE; /* warm cream */
+    --secondary: #C35237; /* terracotta */
+    --secondary-foreground: #FAF6EE;
+    --accent: #D97706; /* saffron/gold */
+    --accent-foreground: #ffffff;
+    --background: #FAF6EE; /* warm cream bg */
+    --foreground: #2E1E1E; /* dark brown text */
+    --muted: #EADEC9;
+    --muted-foreground: #5C4D4D;
+    --border: #D6C7B2;
+    --card: #FFFDF9;
+    --card-foreground: #2E1E1E;
+    --radius: 0.5rem;
+  }
+
+  /* Nalanda Dark Royal Theme */
+  .theme-nalanda.dark {
+    --background: #170A0C; /* deep dark heritage maroon */
+    --foreground: #F5EFEB; /* warm heritage cream text */
+    --primary: #C35237; /* terracotta gold */
+    --primary-foreground: #FAF6EE;
+    --secondary: #800020; /* deep royal maroon */
+    --secondary-foreground: #FAF6EE;
+    --accent: #EAB308; /* rich saffron gold */
+    --accent-foreground: #170A0C;
+    --muted: #2E1517; /* deep muted dark brick */
+    --muted-foreground: #D3C4C6;
+    --border: #4D262B; /* deep bronze border */
+    --card: #221113; /* royal dark card */
+    --card-foreground: #F5EFEB;
+  }
+
+  /* Modern Tech Academy Theme - Futuristic, Cyan/Violet/Glassmorphism */
+  .theme-tech {
+    --primary: #06b6d4; /* cyan-500 */
+    --primary-foreground: #020617;
+    --secondary: #8b5cf6; /* violet-500 */
+    --secondary-foreground: #ffffff;
+    --accent: #22d3ee; /* cyan-400 */
+    --accent-foreground: #020617;
+    --background: #020617; /* slate-950 */
+    --foreground: #f8fafc;
+    --muted: #1e293b;
+    --muted-foreground: #94a3b8;
+    --border: #1e293b;
+    --card: #0f172a;
+    --card-foreground: #f8fafc;
+    --radius: 0.75rem;
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.theme-nalanda .glass-panel {
+  background: rgba(255, 253, 249, 0.85);
+  border: 1px solid rgba(128, 0, 32, 0.08);
+}
+
+.theme-nalanda.dark .glass-panel {
+  background: rgba(34, 17, 19, 0.8);
+  border: 1px solid rgba(195, 82, 55, 0.15);
+}
+
+/* Premium Glow Cards & Effects */
+.glow-card {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.glow-card::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, transparent 40%, var(--primary) 50%, var(--accent) 70%, transparent 80%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.glow-card:hover::after {
+  opacity: 1;
+}
+
+/* Scroll reveals */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes reveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Saffron glowing border animation */
+@keyframes glow-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(217, 119, 6, 0.4);
+  }
+}
+
+.glow-pulse-saffron {
+  animation: glow-pulse 3s infinite ease-in-out;
+}
+
+.hero-gradient-title {
+  background-image: linear-gradient(120deg, var(--primary) 0%, var(--secondary) 48%, var(--accent) 100%);
+  background-size: 180% 180%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: hero-gradient-flow 7s ease-in-out infinite alternate;
+}
+
+@keyframes text-shimmer {
+  0% {
+    background-position: 180% center;
+  }
+  100% {
+    background-position: -180% center;
+  }
+}
+
+.hero-shimmer-active {
+  background-image: linear-gradient(
+    120deg,
+    var(--primary) 0%,
+    var(--secondary) 38%,
+    rgba(255, 255, 255, 0.95) 50%,
+    var(--secondary) 62%,
+    var(--accent) 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: text-shimmer 2.4s cubic-bezier(0.25, 1, 0.5, 1) 0.9s 1 forwards;
+}
+
+.hero-copy-badge {
+  box-shadow:
+    0 10px 24px rgba(76, 38, 18, 0.07),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.hero-stage-border {
+  background:
+    linear-gradient(140deg, rgba(128, 0, 32, 0.86), rgba(195, 82, 55, 0.78) 42%, rgba(217, 119, 6, 0.88));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 24px 54px rgba(109, 42, 18, 0.14);
+}
+
+.hero-stage-glass {
+  background:
+    linear-gradient(165deg, rgba(255, 253, 249, 0.86), rgba(255, 244, 225, 0.7) 58%, rgba(248, 231, 201, 0.72));
+  backdrop-filter: blur(22px) saturate(132%);
+  -webkit-backdrop-filter: blur(22px) saturate(132%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.hero-stage-motif {
+  background:
+    radial-gradient(circle, rgba(255, 253, 249, 0.16), transparent 62%);
+}
+
+.hero-visual-badge {
+  box-shadow:
+    0 16px 30px rgba(76, 38, 18, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.heritage-pattern {
+  background-image:
+    radial-gradient(circle at 16% 14%, rgba(128, 0, 32, 0.09), transparent 16%),
+    radial-gradient(circle at 84% 18%, rgba(217, 119, 6, 0.08), transparent 18%),
+    linear-gradient(135deg, transparent 0 48%, rgba(128, 0, 32, 0.04) 50%, transparent 52%),
+    linear-gradient(rgba(128, 0, 32, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(217, 119, 6, 0.035) 1px, transparent 1px);
+  background-size: auto, auto, auto, 48px 48px, 48px 48px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0.35));
+}
+
+.premium-hover-border {
+  position: relative;
+  isolation: isolate;
+}
+
+.premium-hover-border::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(217, 119, 6, 0.6), rgba(128, 0, 32, 0.5));
+  opacity: 0;
+  filter: blur(10px);
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.premium-hover-border:hover::after,
+.premium-hover-border:focus-visible::after {
+  opacity: 1;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes hero-gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Glassmorphism nav */
+.nav-glass {
+  background: rgba(255, 253, 249, 0.8);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+}
+
+.theme-nalanda.dark .nav-glass {
+  background: rgba(23, 10, 12, 0.85);
+  backdrop-filter: blur(12px) saturate(120%);
+}
+
+.theme-nalanda.dark .hero-gradient-title {
+  background-image: linear-gradient(120deg, #f1d48c 0%, #d99b3b 45%, #c35237 100%);
+}
+
+.theme-nalanda.dark .hero-shimmer-active {
+  background-image: linear-gradient(
+    120deg,
+    #f1d48c 0%,
+    #d99b3b 38%,
+    rgba(255, 255, 255, 0.95) 50%,
+    #d99b3b 62%,
+    #c35237 100%
+  );
+}
+
+.theme-nalanda.dark .hero-copy-badge {
+  box-shadow:
+    0 14px 28px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.theme-nalanda.dark .hero-stage-border {
+  background:
+    linear-gradient(140deg, rgba(217, 119, 6, 0.84), rgba(195, 82, 55, 0.72) 42%, rgba(128, 0, 32, 0.9));
+  box-shadow:
+    0 0 0 1px rgba(234, 179, 8, 0.08),
+    0 26px 60px rgba(9, 4, 4, 0.36);
+}
+
+.theme-nalanda.dark .hero-stage-glass {
+  background:
+    linear-gradient(165deg, rgba(41, 17, 20, 0.92), rgba(29, 12, 14, 0.94) 56%, rgba(55, 21, 17, 0.84));
+  border-color: rgba(234, 179, 8, 0.12);
+}
+
+.theme-nalanda.dark .hero-stage-motif {
+  background:
+    radial-gradient(circle, rgba(234, 179, 8, 0.08), transparent 62%);
+}
+
+.theme-nalanda.dark .hero-visual-badge {
+  box-shadow:
+    0 18px 34px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Premium Cursor Effects */
+.cursor-spotlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.cursor-spotlight::before {
+  content: "";
+  position: absolute;
+  top: var(--y, 50%);
+  left: var(--x, 50%);
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 80%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.cursor-spotlight:hover::before {
+  opacity: 1;
+}
+
+.theme-nalanda.dark .cursor-spotlight::before {
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.15) 0%, transparent 80%);
+}
+
+/* Smooth transition for theme toggles */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-pulse-saffron {
+    animation: none;
+  }
+
+  .hero-gradient-title {
+    animation: none;
+  }
+
+  .premium-hover-border::after,
+  .glow-card::after {
+    transition: none;
+  }
 }

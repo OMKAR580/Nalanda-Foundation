@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Client Academy Sites (Nalanda & Modern Tech)
 
-## Getting Started
+This is a Next.js App Router project acting as a shared codebase for two premium educational websites:
+1. **Nalanda Career Academy** (Premium Academic, Navy/Gold/Cream)
+2. **Modern Tech Academy** (Dark Futuristic, Cyan/Violet/Glassmorphism)
 
-First, run the development server:
+## Switch Websites
 
+You can switch the active website by changing the environment variable in your `.env.local` file:
+\`\`\`env
+NEXT_PUBLIC_SITE_VARIANT=nalanda
+# OR
+NEXT_PUBLIC_SITE_VARIANT=tech
+\`\`\`
+
+## Features
+
+- **Authentication**: Powered by Clerk (Sign In, Sign Up, Protected Dashboard)
+- **Database**: Supabase integration structure ready
+- **Payments**: Razorpay Standard Checkout integrated (API Routes + Frontend Checkout)
+- **Styling**: Tailwind CSS v4, GSAP Animations, Framer Motion
+- **Shared Architecture**: Same codebase, dynamic themes and content via `src/config/site.ts`
+
+## Setup Instructions
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Variables
+Copy the `.env.example` file to `.env.local`:
+```bash
+cp .env.example .env.local
+```
+Fill in the required keys for Clerk, Supabase, and Razorpay.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Clerk Dashboard Configuration
+To ensure the authentication flow works correctly with the custom registration page:
+1. Go to your [Clerk Dashboard](https://dashboard.clerk.com).
+2. Navigate to **Configure > Email, Phone, Web3**.
+3. **Disable** the "Username" requirement (it must not be required).
+4. Enable **Email** and **Google** login options.
+5. Keep **Phone** login disabled (we collect Phone/WhatsApp numbers inside our custom app registration form instead).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Database Setup (Supabase)
+To set up the database tables and starter data in your Supabase project:
+1. Log in to your [Supabase Dashboard](https://supabase.com/dashboard) and select your project.
+2. In the left navigation menu, click on the **SQL Editor** tab (represented by the `SQL` icon).
+3. Click **New Query** -> **New blank query**.
+4. Open the local file `supabase/schema.sql` and copy its entire SQL contents.
+5. Paste the SQL code into the Supabase SQL Editor text area.
+6. Click the **Run** button (or press `Ctrl + Enter` / `Cmd + Enter`) to execute the script.
+7. Verify that the tables (`profiles`, `courses`, `favorites`, `enrollments`, `payments`) are created in the **Table Editor** under the `public` schema.
 
-## Learn More
+### 4. Run Locally
+\`\`\`bash
+npm run dev
+\`\`\`
 
-To learn more about Next.js, take a look at the following resources:
+## Vercel Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push this repository to GitHub.
+2. Import the project in Vercel.
+3. For Nalanda Academy, set `NEXT_PUBLIC_SITE_VARIANT=nalanda` in Vercel Environment Variables.
+4. For Modern Tech Academy, deploy a second project from the same repo and set `NEXT_PUBLIC_SITE_VARIANT=tech`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Testing Checklist
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [ ] Check if theme switches properly by modifying `NEXT_PUBLIC_SITE_VARIANT` and restarting the server.
+- [ ] Verify Clerk Auth: Sign up, sign in, and access `/dashboard`.
+- [ ] Verify Course Catalog: Navigate to `/courses` and click a course.
+- [ ] Verify Checkout: On the course detail page, click "Enroll Now". Ensure Razorpay modal opens. Complete a test payment.
+- [ ] Verify Payment Success: Ensure successful redirection to `/payment-success` with the course ID.
+- [ ] Check responsive design on mobile and desktop.
