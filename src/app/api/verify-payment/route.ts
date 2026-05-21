@@ -1,15 +1,32 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { auth } from '@clerk/nextjs/server';
+import { getRegistrationStatus } from '@/lib/registration/server';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { courses } from '@/data/courses';
 
 export async function POST(req: Request) {
   try {
     const { userId: clerk_user_id } = await auth();
+    const { status, error: registrationError } = await getRegistrationStatus(clerk_user_id);
 
-    if (!clerk_user_id) {
+    if (registrationError) {
+      console.error('Registration status lookup failed before payment verification:', registrationError);
+      return NextResponse.json(
+        { error: 'Failed to validate registration status before payment verification' },
+        { status: 500 }
+      );
+    }
+
+    if (!status.authenticated || !clerk_user_id) {
       return NextResponse.json({ error: 'Unauthorized: You must be logged in' }, { status: 401 });
+    }
+
+    if (!status.registered) {
+      return NextResponse.json(
+        { error: 'Complete your student registration before enrolling in any program.' },
+        { status: 403 }
+      );
     }
 
     const body = await req.json();

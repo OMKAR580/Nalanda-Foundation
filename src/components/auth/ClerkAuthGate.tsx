@@ -6,13 +6,7 @@ import { useRouter } from "next/navigation";
 import { SignIn, SignUp, useAuth } from "@clerk/nextjs";
 import { AuthStatusCard } from "@/components/auth/AuthStatusCard";
 import { Button } from "@/components/ui/Button";
-
-interface RegistrationStatusPayload {
-  registered: boolean;
-  registration: {
-    registration_completed?: boolean;
-  } | null;
-}
+import type { RegistrationStatusPayload } from "@/lib/registration/types";
 
 interface ClerkAuthGateProps {
   configIssue: string | null;
@@ -70,9 +64,17 @@ export function ClerkAuthGate({
         }
 
         const payload = (await response.json()) as RegistrationStatusPayload;
-        const destination = payload.registration?.registration_completed
-          ? "/dashboard"
-          : "/registration";
+        if (!payload.authenticated) {
+          const suffix = configIssue
+            ? ` Development setup warning: ${configIssue}`
+            : " Please refresh once and try again.";
+          setErrorMessage(
+            `Clerk shows you as signed in, but the app server could not verify that session.${suffix}`
+          );
+          return;
+        }
+
+        const destination = payload.registered ? "/dashboard" : "/registration";
 
         router.replace(destination);
       } catch {

@@ -2,7 +2,8 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { getUserEnrollments, getUserPayments, getStudentRegistration } from "@/lib/supabase/server";
+import { getUserEnrollments, getUserPayments } from "@/lib/supabase/server";
+import { getRegistrationStatus } from "@/lib/registration/server";
 import { courses } from "@/data/courses";
 import { CourseImage } from "@/components/ui/CourseImage";
 import { currentSite } from "@/config/site";
@@ -23,6 +24,8 @@ import {
   ArrowRight,
   Lightbulb
 } from "lucide-react";
+
+export const dynamic = "force-dynamic";
 
 interface DBEnrollment {
   course_id: string;
@@ -50,13 +53,15 @@ export default async function DashboardPage() {
   // Check registration status in Supabase
   let registrationData = null;
   let dbError = null;
+  let isRegistered = false;
 
   try {
-    const { data, error } = await getStudentRegistration(user.id);
+    const { status, error } = await getRegistrationStatus(user.id);
     if (error) {
       dbError = error;
     } else {
-      registrationData = data;
+      registrationData = status.registration;
+      isRegistered = status.registered;
     }
   } catch (error: unknown) {
     console.error("Error loading registration data in dashboard:", error);
@@ -107,7 +112,7 @@ export default async function DashboardPage() {
   }
 
   // Redirect to registration page if not completed
-  if (!registrationData || !registrationData.registration_completed) {
+  if (!isRegistered || !registrationData) {
     redirect("/registration");
   }
 

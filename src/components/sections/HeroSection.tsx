@@ -10,9 +10,9 @@ import {
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
-import { useAuth } from "@clerk/nextjs";
 import { motion, type Variants, useReducedMotion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
+import { useRegistrationStatus } from "@/components/auth/RegistrationStatusProvider";
 import { currentSite } from "@/config/site";
 import {
   HeroVisual,
@@ -86,8 +86,16 @@ const revealUp: Variants = {
 };
 
 export function HeroSection() {
-  const { isSignedIn } = useAuth();
-  const registrationHref = isSignedIn ? "/registration" : "/sign-in?redirect_url=/registration";
+  const { status } = useRegistrationStatus();
+  const isRegisteredUser = status.authenticated && status.registered;
+  const registrationHref = status.authenticated
+    ? isRegisteredUser
+      ? "/dashboard"
+      : "/registration"
+    : "/sign-in?redirect_url=/registration";
+  const registrationLabel = isRegisteredUser
+    ? "Go to Dashboard"
+    : "Complete Registration";
   const prefersReducedMotion = useReducedMotion();
   const enableEntryMotion = !prefersReducedMotion;
 
@@ -199,7 +207,7 @@ export function HeroSection() {
               className="premium-hover-border group h-[54px] w-full rounded-2xl border-[1.5px] border-[var(--primary)]/32 bg-[var(--card)]/82 px-7 text-sm font-bold text-[var(--primary)] shadow-[0_16px_30px_rgba(76,38,18,0.08)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[var(--accent)]/85 hover:bg-[var(--card)] dark:border-[var(--accent)]/32 dark:text-[var(--accent)] sm:w-auto"
             >
               <Link href={registrationHref}>
-                Complete Registration
+                {registrationLabel}
                 <ArrowRight className="h-[18px] w-[18px] transition-transform duration-300 group-hover:translate-x-1.5" />
               </Link>
             </Button>

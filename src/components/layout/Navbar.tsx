@@ -3,17 +3,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { currentSite } from "@/config/site";
-import { useAuth, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/Button";
+import { useRegistrationStatus } from "@/components/auth/RegistrationStatusProvider";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 export function Navbar() {
-  const { isSignedIn } = useAuth();
+  const { status } = useRegistrationStatus();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const isRegisteredUser = status.authenticated && status.registered;
+  const primarySignedInHref = isRegisteredUser ? "/dashboard" : "/registration";
+  const primarySignedInLabel = isRegisteredUser
+    ? "Dashboard"
+    : "Complete Registration";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -93,11 +99,11 @@ export function Navbar() {
           <ThemeToggle />
 
           <div className="hidden sm:flex items-center gap-3">
-            {isSignedIn ? (
+            {status.authenticated ? (
               <>
-                <Link href="/dashboard">
+                <Link href={primarySignedInHref}>
                   <Button variant="ghost" className="text-xs h-9 font-bold text-[var(--primary)] hover:bg-[var(--muted)]/30 border border-transparent hover:border-[var(--border)]/60 rounded-xl transition-all">
-                    Dashboard
+                    {primarySignedInLabel}
                   </Button>
                 </Link>
                 <UserButton
@@ -184,15 +190,15 @@ export function Navbar() {
           </nav>
 
           <div className="flex flex-col gap-2 pt-2 border-t border-[var(--border)]/20">
-            {isSignedIn ? (
+            {status.authenticated ? (
               <div className="flex items-center justify-between">
                 <Link
-                  href="/dashboard"
+                  href={primarySignedInHref}
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full"
                 >
                   <Button className="w-full text-xs h-9 bg-[var(--primary)] text-[var(--primary-foreground)] font-bold rounded-xl shadow-sm">
-                    Dashboard
+                    {primarySignedInLabel}
                   </Button>
                 </Link>
                 <div className="pl-3">

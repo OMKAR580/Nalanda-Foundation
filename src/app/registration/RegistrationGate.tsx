@@ -6,14 +6,8 @@ import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { AuthStatusCard } from "@/components/auth/AuthStatusCard";
 import { Button } from "@/components/ui/Button";
+import type { RegistrationStatusPayload } from "@/lib/registration/types";
 import RegistrationForm from "./RegistrationForm";
-
-interface RegistrationStatusPayload {
-  registered: boolean;
-  registration: {
-    registration_completed?: boolean;
-  } | null;
-}
 
 interface RegistrationGateProps {
   configIssue: string | null;
@@ -72,7 +66,17 @@ export default function RegistrationGate({ configIssue }: RegistrationGateProps)
 
         const payload = (await response.json()) as RegistrationStatusPayload;
 
-        if (payload.registration?.registration_completed) {
+        if (!payload.authenticated) {
+          const suffix = configIssue
+            ? ` Development setup warning: ${configIssue}`
+            : " Please sign in again and retry.";
+          setErrorMessage(
+            `Your browser says you are signed in, but the app server could not verify that session.${suffix}`
+          );
+          return;
+        }
+
+        if (payload.registered) {
           router.replace("/dashboard");
           return;
         }

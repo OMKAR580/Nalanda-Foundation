@@ -748,7 +748,9 @@ export default async function Home() {
                   variant="outline"
                   className="h-12 rounded-xl border-white text-white hover:bg-white/10"
                 >
-                  <CompleteRegistrationLink>Complete Registration</CompleteRegistrationLink>
+                  <CompleteRegistrationLink registeredChildren="Go to Dashboard">
+                    Complete Registration
+                  </CompleteRegistrationLink>
                 </Button>
               </div>
             </div>

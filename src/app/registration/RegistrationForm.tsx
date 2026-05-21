@@ -4,11 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { useRegistrationStatus } from "@/components/auth/RegistrationStatusProvider";
 import { courses } from "@/data/courses";
 import { User, BookOpen, Settings, AlertTriangle, ShieldCheck, CheckCircle2, Loader2 } from "lucide-react";
 
 export default function RegistrationForm({ initialEmail = "", initialName = "" }: { initialEmail?: string, initialName?: string }) {
   const router = useRouter();
+  const { refreshRegistrationStatus } = useRegistrationStatus();
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -179,7 +181,9 @@ export default function RegistrationForm({ initialEmail = "", initialName = "" }
       if (res.ok) {
         setSuccessMsg("Registration successfully saved! Redirecting to dashboard...");
         setTimeout(() => {
-          router.push("/dashboard");
+          void refreshRegistrationStatus().finally(() => {
+            router.push("/dashboard");
+          });
         }, 1500);
       } else {
         setErrorMsg(result.error || "Failed to submit registration.");

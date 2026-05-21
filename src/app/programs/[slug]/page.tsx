@@ -4,6 +4,7 @@ import { use, useState } from "react";
 import { getCourseBySlug } from "@/data/courses";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useRegistrationStatus } from "@/components/auth/RegistrationStatusProvider";
 import { handleCheckout } from "@/lib/razorpay/checkout";
 import { notFound } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
@@ -17,39 +18,51 @@ export default function ProgramDetailPage({ params }: { params: Promise<{ slug: 
   const resolvedParams = use(params);
   const program = getCourseBySlug(resolvedParams.slug);
   const { isSignedIn } = useAuth();
+  const { status, refreshRegistrationStatus } = useRegistrationStatus();
   const router = useRouter();
   const [checkingRegistration, setCheckingRegistration] = useState(false);
+  const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
 
   if (!program) {
     notFound();
   }
 
   const onBuyNow = async () => {
+    setCheckoutMessage(null);
+
     if (!isSignedIn) {
-      router.push(`/sign-in?redirect_url=/programs/${program.slug}`);
+      router.push("/sign-in?redirect_url=/registration");
       return;
     }
 
     setCheckingRegistration(true);
     try {
-      // Direct verification of registration status before letting user pay
-      const res = await fetch("/api/registration/status");
-      if (res.ok) {
-        const data = await res.json();
-        if (!data.completed) {
-          // If student registration is not filled/completed, force them to fill it
-          alert("Important: You must complete the student registration form first before purchasing or enrolling in any program.");
-          router.push("/registration");
-          return;
-        }
+      const latestStatus = await refreshRegistrationStatus();
+      const resolvedStatus = latestStatus ?? status;
+
+      if (!latestStatus && !resolvedStatus.authenticated) {
+        setCheckoutMessage(
+          "We could not verify your registration right now. Please retry in a moment."
+        );
+        return;
       }
 
-      // All good. Trigger Razorpay checkout
-      handleCheckout(program.id, program.title, program.price);
+      if (!resolvedStatus.authenticated) {
+        router.push("/sign-in?redirect_url=/registration");
+        return;
+      }
+
+      if (!resolvedStatus.registered) {
+        router.push("/registration");
+        return;
+      }
+
+      await handleCheckout(program.id, program.title, program.price);
     } catch (err) {
-      console.error("Error verifying registration status at buy time:", err);
-      // Fallback checkout
-      handleCheckout(program.id, program.title, program.price);
+      console.error("Error verifying registration status or starting checkout:", err);
+      setCheckoutMessage(
+        "We could not verify your registration or start checkout right now. Please retry in a moment."
+      );
     } finally {
       setCheckingRegistration(false);
     }
@@ -184,6 +197,12 @@ export default function ProgramDetailPage({ params }: { params: Promise<{ slug: 
                 >
                   {checkingRegistration ? "Processing..." : "Enroll & Pay Now"}
                 </Button>
+
+                {checkoutMessage ? (
+                  <div className="rounded-xl border border-[#C35237]/20 bg-[#FAF0D9]/60 px-4 py-3 text-[11px] font-medium text-[#5C4D4D]">
+                    {checkoutMessage}
+                  </div>
+                ) : null}
 
                 {/* Checkout security alerts */}
                 <div className="space-y-2 border-t border-[#D6C7B2]/30 pt-4.5 text-[10px] text-[#5C4D4D]">

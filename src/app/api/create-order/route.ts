@@ -1,9 +1,36 @@
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import Razorpay from 'razorpay';
+import { getRegistrationStatus } from '@/lib/registration/server';
 import { courses, Course } from '@/data/courses';
 
 export async function POST(req: Request) {
   try {
+    const { userId } = await auth();
+    const { status, error: registrationError } = await getRegistrationStatus(userId);
+
+    if (registrationError) {
+      console.error('Registration status lookup failed before order creation:', registrationError);
+      return NextResponse.json(
+        { error: 'Failed to validate registration status before payment.' },
+        { status: 500 }
+      );
+    }
+
+    if (!status.authenticated) {
+      return NextResponse.json(
+        { error: 'Unauthorized: You must be logged in before enrolling.' },
+        { status: 401 }
+      );
+    }
+
+    if (!status.registered) {
+      return NextResponse.json(
+        { error: 'Complete your student registration before enrolling in any program.' },
+        { status: 403 }
+      );
+    }
+
     const razorpay = new Razorpay({
       key_id: process.env.RAZORPAY_KEY_ID || 'placeholder',
       key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder',
