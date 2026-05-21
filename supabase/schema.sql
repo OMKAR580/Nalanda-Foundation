@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS public.courses (
     slug VARCHAR(255) UNIQUE NOT NULL,      -- e.g., 'full-stack-web-development'
     title VARCHAR(255) NOT NULL,
     category VARCHAR(255),
-    price NUMERIC(10, 2) NOT NULL,          -- Price in standard currency representation (Rupees)
+    price NUMERIC(10, 2) NOT NULL,          -- Runtime program pricing is handled separately in app config
     duration VARCHAR(100),
     level VARCHAR(100),
     mode VARCHAR(100),
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS public.payments (
     razorpay_order_id VARCHAR(255) UNIQUE NOT NULL,
     razorpay_payment_id VARCHAR(255) UNIQUE,
     razorpay_signature TEXT,
-    amount NUMERIC(10, 2) NOT NULL,         -- Amount stored in Rupees (e.g. 4999.00)
+    amount NUMERIC(10, 2) NOT NULL,         -- Amount stored in Rupees
     currency VARCHAR(10) DEFAULT 'INR',
     status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'captured', 'failed')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
@@ -127,10 +127,10 @@ CREATE INDEX IF NOT EXISTS idx_payments_status ON public.payments(status);
 -- =========================================================================
 INSERT INTO public.courses (course_id, slug, title, category, price, duration, level, mode, certificate, status)
 VALUES
-('course-1', 'full-stack-web-development', 'Full Stack Web Development', 'Technology', 4999.00, '6 Months', 'Beginner to Advanced', 'Online Live', true, 'active'),
-('course-2', 'advanced-data-science-ai', 'Advanced Data Science & AI', 'Data', 6999.00, '8 Months', 'Intermediate', 'Hybrid', true, 'active'),
-('course-3', 'ui-ux-product-design', 'UI/UX Product Design Masterclass', 'Design', 3499.00, '4 Months', 'Beginner', 'Online Recorded', true, 'active'),
-('course-4', 'cloud-computing-devops', 'Cloud Computing & DevOps', 'Infrastructure', 5499.00, '5 Months', 'Intermediate', 'Online Live', true, 'active')
+('course-1', 'full-stack-web-development', 'Full Stack Web Development', 'Technology', 0.00, '6 Months', 'Beginner to Advanced', 'Online Live', true, 'active'),
+('course-2', 'advanced-data-science-ai', 'Advanced Data Science & AI', 'Data', 0.00, '8 Months', 'Intermediate', 'Hybrid', true, 'active'),
+('course-3', 'ui-ux-product-design', 'UI/UX Product Design Masterclass', 'Design', 0.00, '4 Months', 'Beginner', 'Online Recorded', true, 'active'),
+('course-4', 'cloud-computing-devops', 'Cloud Computing & DevOps', 'Infrastructure', 0.00, '5 Months', 'Intermediate', 'Online Live', true, 'active')
 ON CONFLICT (course_id) DO UPDATE
 SET price = EXCLUDED.price,
     title = EXCLUDED.title,
@@ -207,18 +207,18 @@ CREATE OR REPLACE TRIGGER trigger_update_student_registrations_updated_at
 -- =========================================================================
 INSERT INTO public.courses (course_id, slug, title, category, price, duration, level, mode, certificate, status)
 VALUES
-('program-1', 'computer-science-it-internship', 'Computer Science & IT Internship', 'Technology', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-2', 'robotics-iot-ros-internship', 'Robotics, IoT & ROS Internship', 'Technology', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-3', 'graphic-design-content-creation-internship', 'Graphic Design & Content Creation Internship', 'Design', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-4', 'digital-literacy-computer-skills-internship', 'Digital Literacy & Computer Skills Internship', 'Technology', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-5', 'accounting-tally-internship', 'Accounting & Tally Internship', 'Business', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-6', 'financial-literacy-personal-finance-internship', 'Financial Literacy & Personal Finance Internship', 'Finance', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-7', 'entrepreneurship-startup-development-internship', 'Entrepreneurship & Startup Development Internship', 'Business', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-8', 'communication-skills-personality-development-internship', 'Communication Skills & Personality Development Internship', 'Soft Skills', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-9', 'teaching-online-tutoring-internship', 'Teaching & Online Tutoring Internship', 'Education', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-10', 'agricultural-innovation-entrepreneurship-internship', 'Agricultural Innovation & Entrepreneurship Internship', 'Agriculture', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-11', 'journalism-mass-communication-internship', 'Journalism & Mass Communication Internship', 'Media', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
-('program-12', 'mathematics-statistics-internship', 'Mathematics & Statistics Internship', 'Science', 599.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active')
+('program-1', 'computer-science-it-internship', 'Computer Science & IT Internship', 'Technology', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-2', 'robotics-iot-ros-internship', 'Robotics, IoT & ROS Internship', 'Technology', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-3', 'graphic-design-content-creation-internship', 'Graphic Design & Content Creation Internship', 'Design', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-4', 'digital-literacy-computer-skills-internship', 'Digital Literacy & Computer Skills Internship', 'Technology', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-5', 'accounting-tally-internship', 'Accounting & Tally Internship', 'Business', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-6', 'financial-literacy-personal-finance-internship', 'Financial Literacy & Personal Finance Internship', 'Finance', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-7', 'entrepreneurship-startup-development-internship', 'Entrepreneurship & Startup Development Internship', 'Business', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-8', 'communication-skills-personality-development-internship', 'Communication Skills & Personality Development Internship', 'Soft Skills', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-9', 'teaching-online-tutoring-internship', 'Teaching & Online Tutoring Internship', 'Education', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-10', 'agricultural-innovation-entrepreneurship-internship', 'Agricultural Innovation & Entrepreneurship Internship', 'Agriculture', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-11', 'journalism-mass-communication-internship', 'Journalism & Mass Communication Internship', 'Media', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active'),
+('program-12', 'mathematics-statistics-internship', 'Mathematics & Statistics Internship', 'Science', 0.00, '4 to 8 Weeks', 'Beginner to Advanced', 'Flexible', true, 'active')
 ON CONFLICT (course_id) DO UPDATE
 SET price = EXCLUDED.price,
     title = EXCLUDED.title,
@@ -226,3 +226,9 @@ SET price = EXCLUDED.price,
     slug = EXCLUDED.slug,
     duration = EXCLUDED.duration,
     mode = EXCLUDED.mode;
+
+-- =========================================================================
+-- ADDITIVE UPDATE: OPTIONAL COLLEGE TEXT FOR REGISTRATION FALLBACKS
+-- =========================================================================
+ALTER TABLE IF EXISTS public.student_registrations
+ADD COLUMN IF NOT EXISTS other_college_name TEXT;

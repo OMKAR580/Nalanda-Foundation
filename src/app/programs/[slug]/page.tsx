@@ -24,6 +24,11 @@ import { currentSite } from "@/config/site";
 import { CourseImage } from "@/components/ui/CourseImage";
 import { useLanguage } from "@/hooks/useLanguage";
 import { captureEvent } from "@/lib/analytics/posthog";
+import {
+  COLLEGE_FEE_NOT_CONFIGURED_MESSAGE,
+  formatIndianCurrency,
+  getCollegeFeeDetails,
+} from "@/lib/programAccess";
 
 export default function ProgramDetailPage({
   params,
@@ -59,7 +64,10 @@ export default function ProgramDetailPage({
   const onBuyNow = async () => {
     setCheckoutMessage(null);
     captureEvent("enroll_clicked", {
-      amount: program.price,
+      amount:
+        typeof status.registration?.college_name === "string"
+          ? getCollegeFeeDetails(status.registration.college_name).fee ?? undefined
+          : undefined,
       program_slug: program.slug,
     });
 
@@ -89,19 +97,47 @@ export default function ProgramDetailPage({
         return;
       }
 
+      const registeredCollegeName =
+        typeof resolvedStatus.registration?.college_name === "string"
+          ? resolvedStatus.registration.college_name
+          : null;
+      const { fee } = getCollegeFeeDetails(registeredCollegeName);
+
+      if (fee === null) {
+        setCheckoutMessage(COLLEGE_FEE_NOT_CONFIGURED_MESSAGE);
+        return;
+      }
+
       await handleCheckout({
-        amount: program.price,
         courseId: program.id,
         courseName: program.title,
         programSlug: program.slug,
       });
     } catch (error) {
       console.error("Error verifying registration status or starting checkout:", error);
-      setCheckoutMessage(messages.programDetail.checkoutErrorMessage);
+      setCheckoutMessage(
+        error instanceof Error
+          ? error.message
+          : messages.programDetail.checkoutErrorMessage
+      );
     } finally {
       setCheckingRegistration(false);
     }
   };
+
+  const registeredCollegeName =
+    typeof status.registration?.college_name === "string"
+      ? status.registration.college_name
+      : null;
+  const { fee: configuredFee } = getCollegeFeeDetails(registeredCollegeName);
+  const feeDisplay =
+    configuredFee !== null ? formatIndianCurrency(configuredFee) : null;
+  const isRegisteredStudent = status.authenticated && status.registered;
+  const feeStatusMessage = feeDisplay
+    ? messages.common.finalFeeShownBeforePayment
+    : isRegisteredStudent
+      ? messages.programDetail.feePendingConfirmation
+      : messages.programDetail.loginAndRegisterToViewFee;
 
   return (
     <div className="min-h-screen bg-[#FAF6EE] px-4 py-12 font-sans text-[#2E1E1E] sm:px-6 lg:px-8">
@@ -214,24 +250,21 @@ export default function ProgramDetailPage({
               <div className="space-y-6 p-6 md:p-8">
                 <div className="space-y-1">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#5C4D4D]">
-                    {messages.programDetail.totalContribution}
+                    {messages.programDetail.programFeeLabel}
                   </span>
-                  <div className="flex items-baseline gap-3">
-                    <span className="text-3xl font-extrabold text-[#800020]">
-                      {"\u20B9"}
-                      {program.price}
-                    </span>
-                    <span className="text-sm font-semibold text-[#5C4D4D] line-through">
-                      {"\u20B9"}
-                      {program.originalPrice}
-                    </span>
-                    <span className="rounded border border-green-200 bg-green-50 px-2 py-0.5 text-[10px] font-bold uppercase text-green-700">
-                      {messages.common.saveFortyPercent}
-                    </span>
+                  <div className="space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-2xl font-extrabold text-[#800020] sm:text-3xl">
+                        {feeDisplay ?? messages.common.feeVariesByCollege}
+                      </span>
+                      <span className="rounded border border-[#D6C7B2] bg-[#FAF6EE] px-2 py-0.5 text-[10px] font-bold uppercase text-[#800020]">
+                        {messages.common.collegeBasedPricing}
+                      </span>
+                    </div>
+                    <p className="text-[11px] font-medium leading-relaxed text-[#5C4D4D]">
+                      {feeStatusMessage}
+                    </p>
                   </div>
-                  <span className="block pt-1 text-[10px] font-semibold text-green-700">
-                    {messages.programDetail.includedNote}
-                  </span>
                 </div>
 
                 <Button

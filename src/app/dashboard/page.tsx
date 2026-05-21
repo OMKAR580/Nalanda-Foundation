@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Award,
   BookOpen,
+  CalendarDays,
   CheckCircle2,
   CreditCard,
   FileText,
@@ -16,6 +17,7 @@ import {
   Phone,
   Sparkles,
   User,
+  Video,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -26,6 +28,11 @@ import { CourseImage } from "@/components/ui/CourseImage";
 import { currentSite } from "@/config/site";
 import { getServerLanguageContext } from "@/i18n/server";
 import { AnalyticsExternalLink } from "@/components/analytics/AnalyticsExternalLink";
+import {
+  formatIndianCurrency,
+  getClassAccessDetails,
+  getCollegeFeeDetails,
+} from "@/lib/programAccess";
 
 export const dynamic = "force-dynamic";
 
@@ -166,6 +173,12 @@ export default async function DashboardPage() {
   const preferredPrograms = Array.isArray(registrationData.internship_programs)
     ? registrationData.internship_programs
     : [];
+  const registeredCollegeName =
+    typeof registrationData.college_name === "string"
+      ? registrationData.college_name
+      : "";
+  const { fee: configuredCollegeFee } = getCollegeFeeDetails(registeredCollegeName);
+  const classAccess = getClassAccessDetails();
 
   const recommendedCourse =
     courses.find((course) => course.title === registrationData.first_preference) ||
@@ -597,6 +610,85 @@ export default async function DashboardPage() {
                     4 to 8 Weeks
                   </span>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden rounded-2xl border border-[var(--border)]/60 bg-[var(--card)] shadow-sm transition-all duration-300">
+              <div className="flex items-center gap-3 border-b border-[var(--border)]/30 bg-[var(--muted)]/30 p-4.5">
+                <CalendarDays className="h-5 w-5 text-[var(--secondary)]" />
+                <h3 className="font-serif text-sm font-extrabold text-[var(--primary)]">
+                  {messages.dashboard.collegeFeeStatusTitle}
+                </h3>
+              </div>
+              <CardContent className="space-y-3 p-4.5 text-xs">
+                <div>
+                  <span className="block text-[9px] font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
+                    {messages.dashboard.registeredCollegeLabel}
+                  </span>
+                  <span className="mt-0.5 block text-sm font-semibold text-[var(--foreground)]">
+                    {registeredCollegeName}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[9px] font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
+                    {messages.dashboard.currentFeeStatusLabel}
+                  </span>
+                  <span className="mt-0.5 block text-sm font-bold text-[var(--primary)]">
+                    {configuredCollegeFee !== null
+                      ? formatIndianCurrency(configuredCollegeFee)
+                      : messages.dashboard.feePendingConfirmation}
+                  </span>
+                </div>
+                <p className="text-[10px] leading-relaxed text-[var(--muted-foreground)]">
+                  {configuredCollegeFee !== null
+                    ? messages.common.finalFeeShownBeforePayment
+                    : messages.common.collegeFeeNotConfiguredYet}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="overflow-hidden rounded-2xl border border-[var(--border)]/60 bg-[var(--card)] shadow-sm transition-all duration-300">
+              <div className="flex items-center gap-3 border-b border-[var(--border)]/30 bg-[var(--muted)]/30 p-4.5">
+                <Video className="h-5 w-5 text-[var(--primary)]" />
+                <h3 className="font-serif text-sm font-extrabold text-[var(--primary)]">
+                  {messages.dashboard.googleMeetAccessTitle}
+                </h3>
+              </div>
+              <CardContent className="space-y-4 p-4.5 text-xs">
+                <p className="leading-relaxed text-[var(--muted-foreground)]">
+                  {enrolledPrograms.length > 0
+                    ? messages.dashboard.liveClassesGoogleMeet
+                    : messages.dashboard.classAccessAfterEnrollment}
+                </p>
+
+                {classAccess.hasLiveClassLink && enrolledPrograms.length > 0 ? (
+                  <Button asChild className="h-10 w-full rounded-xl bg-[var(--primary)] font-bold text-[var(--primary-foreground)]">
+                    <a
+                      href={classAccess.googleMeetLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {messages.dashboard.joinGoogleMeetClass}
+                    </a>
+                  </Button>
+                ) : (
+                  <Button
+                    disabled
+                    className="h-10 w-full rounded-xl bg-[var(--muted)] text-[var(--muted-foreground)]"
+                  >
+                    {messages.dashboard.classLinkWillBeSharedSoon}
+                  </Button>
+                )}
+
+                <p className="text-[10px] leading-relaxed text-[var(--muted-foreground)]">
+                  {enrolledPrograms.length === 0
+                    ? messages.dashboard.classAccessAfterEnrollment
+                    : classAccess.hasLiveClassLink
+                      ? messages.dashboard.classLinkReady
+                      : classAccess.isDevelopment
+                        ? messages.dashboard.classLinkAdminNote
+                        : messages.dashboard.classLinkBeforeSession}
+                </p>
               </CardContent>
             </Card>
 

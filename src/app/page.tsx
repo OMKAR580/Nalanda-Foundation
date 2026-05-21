@@ -396,19 +396,17 @@ export default async function Home() {
                 </div>
 
                 <div className="space-y-4 border-t border-[var(--border)]/30 pt-3">
-                  <div className="flex items-baseline justify-between">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-xl font-extrabold text-[var(--primary)]">
-                        {"\u20B9"}
-                        {program.price}
-                      </span>
-                      <span className="text-[11px] font-semibold text-[var(--muted-foreground)] line-through">
-                        {"\u20B9"}
-                        {program.originalPrice}
-                      </span>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <div className="text-lg font-extrabold text-[var(--primary)]">
+                        {messages.common.feeVariesByCollege}
+                      </div>
+                      <p className="text-[10px] font-medium leading-relaxed text-[var(--muted-foreground)]">
+                        {messages.common.programFeeConfirmedAfterCollegeSelection}
+                      </p>
                     </div>
-                    <span className="rounded bg-green-100 px-2 py-0.5 text-[10px] font-bold text-green-700 dark:bg-green-950/40 dark:text-green-400">
-                      {messages.home.programs.offer}
+                    <span className="rounded bg-[var(--muted)]/60 px-2 py-0.5 text-[10px] font-bold text-[var(--primary)]">
+                      {messages.common.collegeBasedPricing}
                     </span>
                   </div>
 

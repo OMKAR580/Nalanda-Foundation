@@ -21,6 +21,7 @@ function SuccessContent() {
   const status = searchParams.get("status");
   const courseId = searchParams.get("course_id");
   const errorMsg = searchParams.get("error");
+  const amountParam = searchParams.get("amount");
   const { messages } = useLanguage();
 
   const [verifying, setVerifying] = useState(true);
@@ -59,8 +60,9 @@ function SuccessContent() {
 
             if (!hasTrackedVerifiedPaymentRef.current) {
               hasTrackedVerifiedPaymentRef.current = true;
+              const parsedAmount = Number(amountParam);
               captureEvent("payment_verified", {
-                amount: matchingCourse?.price,
+                amount: Number.isFinite(parsedAmount) ? parsedAmount : undefined,
                 program_slug: matchingCourse?.slug ?? courseId,
                 status: "verified",
               });
@@ -88,7 +90,7 @@ function SuccessContent() {
     }
 
     void verifyEnrollment();
-  }, [courseId, errorMsg, messages, status]);
+  }, [amountParam, courseId, errorMsg, messages, status]);
 
   if (verifying) {
     return (

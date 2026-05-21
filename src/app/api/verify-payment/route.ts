@@ -4,6 +4,10 @@ import { auth } from '@clerk/nextjs/server';
 import { getRegistrationStatus } from '@/lib/registration/server';
 import { supabaseAdmin } from '@/lib/supabase/server';
 import { courses } from '@/data/courses';
+import {
+  COLLEGE_FEE_NOT_CONFIGURED_MESSAGE,
+  getCollegeFeeDetails,
+} from '@/lib/programAccess';
 
 export async function POST(req: Request) {
   try {
@@ -57,6 +61,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Payment verification failed: Course not found' }, { status: 404 });
     }
 
+    const collegeName =
+      typeof status.registration?.college_name === 'string'
+        ? status.registration.college_name
+        : null;
+    const { fee } = getCollegeFeeDetails(collegeName);
+
+    if (fee === null) {
+      return NextResponse.json(
+        { error: COLLEGE_FEE_NOT_CONFIGURED_MESSAGE },
+        { status: 409 }
+      );
+    }
+
     // 1. Insert into payments table
     const { error: paymentError } = await supabaseAdmin
       .from('payments')
@@ -66,7 +83,7 @@ export async function POST(req: Request) {
         razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature,
-        amount: course.price,
+        amount: fee,
         currency: 'INR',
         status: 'captured',
       });

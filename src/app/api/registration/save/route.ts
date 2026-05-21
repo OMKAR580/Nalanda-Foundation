@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { resolveCollegeSelection } from '@/data/colleges';
 import { saveStudentRegistration } from '@/lib/supabase/server';
 
 export async function POST(req: Request) {
@@ -77,6 +78,34 @@ export async function POST(req: Request) {
         );
       }
     }
+
+    const resolvedCollege = resolveCollegeSelection(
+      body.college_name,
+      body.other_college_name
+    );
+
+    if (resolvedCollege.error === 'invalid_college') {
+      return NextResponse.json(
+        {
+          error:
+            "Academic Information error: Select a valid college from the approved list or choose 'Other / Not listed'.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (resolvedCollege.error === 'missing_other_college') {
+      return NextResponse.json(
+        {
+          error:
+            "Academic Information error: Enter your college name when 'Other / Not listed' is selected.",
+        },
+        { status: 400 }
+      );
+    }
+
+    body.college_name = resolvedCollege.collegeName;
+    body.other_college_name = resolvedCollege.otherCollegeName;
 
     // 3. Validate Internship Preferences
     if (!body.internship_programs || !Array.isArray(body.internship_programs) || body.internship_programs.length < 2) {

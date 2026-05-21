@@ -1,4 +1,4 @@
-export type Language = "en" | "hi";
+﻿export type Language = "en" | "hi";
 
 export const DEFAULT_LANGUAGE: Language = "en";
 export const LANGUAGE_STORAGE_KEY = "nalanda_language";
@@ -38,7 +38,18 @@ const englishMessages = {
     previousSection: "Previous Section",
     nextSection: "Next Section",
     verified: "Verified",
-    saveFortyPercent: "Save 40%",
+    saveFortyPercent: "College-based pricing",
+    collegeBasedPricing: "College-based pricing",
+    feeVariesByCollege: "Fee varies by college",
+    programFeeConfirmedAfterCollegeSelection:
+      "Program fee will be confirmed after college selection",
+    finalFeeShownBeforePayment: "Final fee will be shown before payment",
+    liveClassesGoogleMeet:
+      "Live classes will be conducted on Google Meet",
+    classLinkWillBeSharedSoon: "Class link will be shared soon",
+    joinGoogleMeetClass: "Join Google Meet Class",
+    collegeFeeNotConfiguredYet:
+      "College-wise fee is not configured yet",
   },
   brand: {
     learningPortal: "Learning Portal",
@@ -75,14 +86,14 @@ const englishMessages = {
     visualBadges: [
       "Verified Learning",
       "Certificate Support",
-      "₹599 Fee",
+      "College-based pricing",
       "Career Skills",
     ],
     copyBadges: [
       "Heritage-Led Career Learning",
       "Verified Programs",
       "Certificate Support",
-      "₹599 Fee",
+      "College-based pricing",
     ],
     titlePrefix: "Ancient Wisdom,",
     typewriterWords: [
@@ -155,7 +166,7 @@ const englishMessages = {
         {
           title: "Affordable Program Access",
           description:
-            "Premium, top-tier mentorship programs made extremely accessible today at just ₹599 to empower student demographics.",
+            "Program fees are aligned to approved colleges and confirmed before payment for each student cohort.",
         },
         {
           title: "Tailored For Careers",
@@ -217,9 +228,9 @@ const englishMessages = {
             "Unlock access to cohort leaders and core technical support coordinates on WhatsApp instantly upon starting your registration setup.",
         },
         {
-          title: "Subsidized Pricing",
+          title: "College-Based Pricing",
           description:
-            "Get full access to live lecture credentials, codebases, and templates for just ₹599 (crossed out from ₹999) as a student stimulus effort today.",
+            "Complete registration, select your college, and view the final program fee before payment.",
         },
       ],
     },
@@ -228,7 +239,7 @@ const englishMessages = {
       heading: "Explore 12 Skill-Based Internship & Certification Programs",
       subtitle:
         "Enroll in premium tracks designed to help students build practical skills, work under live mentors, and secure high-value resume portfolios.",
-      offer: "40% OFF",
+      offer: "College-based pricing",
       browseAll: "Browse All 12 Programs",
     },
     services: {
@@ -273,9 +284,9 @@ const englishMessages = {
             "Empowering non-technical demographics with essential computational, word-processing, and internet tools.",
         },
         {
-          title: "Affordable Student Programs",
+          title: "College-Based Fee Confirmation",
           description:
-            "Ensuring top-quality education does not demand massive financial strain through highly subsidized fees (₹599).",
+            "Program fees are shared after college selection so each learner sees the correct amount before payment.",
         },
       ],
       workflowBadge: "Workflow Guide",
@@ -299,7 +310,7 @@ const englishMessages = {
           step: "03",
           title: "Pay Fee",
           description:
-            "Process the highly subsidized student fee (₹599) via secure Razorpay.",
+            "View your college-based fee and complete payment securely through Razorpay.",
         },
         {
           step: "04",
@@ -373,7 +384,7 @@ const englishMessages = {
           step: "02",
           title: "Enroll in Program Track",
           description:
-            "Enroll in your preferred skill specialization track at the highly subsidized student fee (₹599).",
+            "Enroll in your preferred skill specialization track after confirming your college-based fee.",
         },
         {
           step: "03",
@@ -396,10 +407,10 @@ const englishMessages = {
       ],
       announcementTitle: "Important Announcement",
       announcementDescription:
-        "Course content, interactive code playgrounds, support tickets, and specific certificate access details will be fully activated inside your student dashboard immediately upon completing enrollment in your chosen track.",
+        "Live classes will be conducted on Google Meet. Your class link will appear in your dashboard after enrollment.",
       ctaHeading: "Elevate Your Career Portfolio Today",
       ctaDescription:
-        "Join active cohort structures and acquire highly shareable, secure verification credentials for just ₹599.",
+        "Join active cohort structures and receive secure, shareable credentials with college-based pricing confirmed before payment.",
     },
     contact: {
       heading: "Official Admissions & Academic Helpline",
@@ -429,12 +440,17 @@ const englishMessages = {
     portalStatusTitle: "Academic Portal Status",
     importantNoticeLabel: "Important Notice:",
     portalStatusDescription:
-      "Course content will be uploaded soon after enrollment. Your official dashboard will display live lecture coordinates, tasks lists, project codebases, and student groups immediately upon concluding registration rounds.",
-    totalContribution: "Total Program Contribution",
-    includedNote: "* Interactive verified certification & GST included.",
-    paymentSecurityOne: "Safe test-mode payment processed through Razorpay.",
+      "Live classes will be conducted on Google Meet. Your class link will appear in your dashboard after enrollment.",
+    totalContribution: "Program Fee",
+    includedNote: "Final fee will be shown before payment.",
+    programFeeLabel: "Program Fee",
+    loginAndRegisterToViewFee:
+      "Login and complete registration to view your fee",
+    feePendingConfirmation: "Fee pending confirmation",
+    paymentSecurityOne:
+      "Final fee will be shown before payment through Razorpay.",
     paymentSecurityTwo:
-      "Academic access logged automatically into your student dashboard.",
+      "Live classes will be conducted on Google Meet. Your class link will appear in your dashboard after enrollment.",
     helpTitle: "Need Admission Help?",
     helpDescription:
       "Call our admissions office at {phone} if you face billing or enrollment validation problems.",
@@ -472,6 +488,10 @@ const englishMessages = {
       mobileNumber: "Mobile Number must be exactly 10 digits.",
       email: "Please enter a valid email address.",
       academicRequired: "All fields in Academic Information are required.",
+      collegeSelection:
+        "Select a valid college from the approved list or choose Other / Not listed.",
+      otherCollegeRequired:
+        "Enter your college name when Other / Not listed is selected.",
       minimumPrograms:
         "You must select a minimum of 2 internship programs under Internship Preferences.",
       preferencesRequired:
@@ -532,6 +552,11 @@ const englishMessages = {
       universityPlaceholder: "e.g. Patliputra University",
       collegeLabel: "College Name *",
       collegePlaceholder: "e.g. Nalanda College",
+      collegeSearchPlaceholder: "Search and select your college",
+      collegeHelperText:
+        "Choose an approved college from the dropdown suggestions, or select Other / Not listed.",
+      otherCollegeLabel: "Other College Name *",
+      otherCollegePlaceholder: "Enter your college name",
       degreeLabel: "Degree *",
       degreePlaceholder: "e.g. B.Tech / B.Sc / BCA",
       departmentLabel: "Department / Stream *",
@@ -659,7 +684,7 @@ const englishMessages = {
     latestUpdate: "Latest Update",
     latestUpdateTitle: "Cohort Allocations in Progress",
     latestUpdateDescription:
-      "Course content, live lecture links, and project repositories will activate dynamically upon final batch assignment. Keep an eye on your WhatsApp group!",
+      "Google Meet class access and session timing updates will appear in your dashboard after enrollment confirmation. Keep an eye on your WhatsApp group!",
     systemUpdate: "System Update",
     systemUpdateTitle: "Portal Upgrades Completed",
     systemUpdateDescription:
@@ -673,6 +698,22 @@ const englishMessages = {
     primaryTrack: "Primary Track Preference",
     chosenPrograms: "Chosen Program Preferences",
     academicStatusTitle: "Academic Status",
+    collegeFeeStatusTitle: "College Fee Status",
+    registeredCollegeLabel: "Registered College",
+    currentFeeStatusLabel: "Current Fee Status",
+    feePendingConfirmation: "Fee pending confirmation",
+    googleMeetAccessTitle: "Google Meet Class Access",
+    classAccessAfterEnrollment:
+      "Live class access will appear here after you enroll in a program.",
+    classLinkWillBeSharedSoon: "Class link will be shared soon",
+    classLinkReady:
+      "Your Google Meet class link is ready to use from the dashboard.",
+    classLinkAdminNote: "Class link will be updated by admin soon.",
+    classLinkBeforeSession:
+      "Class link will be shared before the session begins.",
+    liveClassesGoogleMeet:
+      "Live classes will be conducted on Google Meet. Your class link will appear in your dashboard after enrollment.",
+    joinGoogleMeetClass: "Join Google Meet Class",
     registrationVerification: "Registration verification",
     verifiedStatus: "Verified",
     digitalCertificate: "Digital certificate",
@@ -718,12 +759,12 @@ const englishMessages = {
     paymentSuccessful: "Payment Successful!",
     successBadge: "Verified Enrollment Activated",
     successDescription:
-      "Thank you for enrolling in Nalanda Foundation! Your payment signature was successfully authenticated. Your student profile now has verified active access to this program track.",
+      "Thank you for enrolling in Nalanda Foundation! Your payment was verified successfully, and your dashboard will now show your enrolled program and Google Meet class access details.",
     nextStepsTitle: "What to do next?",
     nextStepOne:
       "Go to your Dashboard to join the official WhatsApp student announcement group.",
     nextStepTwo:
-      "Course study contents and task guides will activate as final admissions conclude.",
+      "Check your dashboard for Google Meet class access and upcoming session updates.",
   },
 };
 
@@ -753,7 +794,17 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
     previousSection: "पिछला सेक्शन",
     nextSection: "अगला सेक्शन",
     verified: "सत्यापित",
-    saveFortyPercent: "40% बचत",
+    saveFortyPercent: "कॉलेज-आधारित फीस",
+    collegeBasedPricing: "कॉलेज-आधारित फीस",
+    feeVariesByCollege: "फीस कॉलेज के अनुसार अलग-अलग है",
+    programFeeConfirmedAfterCollegeSelection:
+      "कॉलेज चयन के बाद प्रोग्राम फीस की पुष्टि की जाएगी",
+    finalFeeShownBeforePayment: "अंतिम फीस भुगतान से पहले दिखाई जाएगी",
+    liveClassesGoogleMeet: "लाइव क्लासेस Google Meet पर होंगी",
+    classLinkWillBeSharedSoon: "क्लास लिंक जल्द साझा की जाएगी",
+    joinGoogleMeetClass: "Google Meet क्लास जॉइन करें",
+    collegeFeeNotConfiguredYet:
+      "कॉलेज-आधारित फीस अभी कॉन्फ़िगर नहीं की गई है",
   },
   nav: {
     home: "होम",
@@ -785,14 +836,14 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
     visualBadges: [
       "सत्यापित लर्निंग",
       "सर्टिफिकेट सहायता",
-      "₹599 शुल्क",
+      "कॉलेज-आधारित फीस",
       "करियर स्किल्स",
     ],
     copyBadges: [
       "विरासत-आधारित करियर लर्निंग",
       "सत्यापित प्रोग्राम",
       "सर्टिफिकेट सहायता",
-      "₹599 शुल्क",
+      "कॉलेज-आधारित फीस",
     ],
     titlePrefix: "प्राचीन ज्ञान,",
     typewriterWords: [
@@ -865,7 +916,7 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
         {
           title: "सुलभ प्रोग्राम एक्सेस",
           description:
-            "प्रीमियम मेंटरशिप प्रोग्राम्स को आज सिर्फ ₹599 में अधिक छात्रों के लिए सुलभ बनाया गया है।",
+            "प्रोग्राम फीस अनुमोदित कॉलेज के अनुसार तय होगी और भुगतान से पहले कन्फर्म की जाएगी।",
         },
         {
           title: "करियर के लिए तैयार",
@@ -927,9 +978,9 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
             "रजिस्ट्रेशन शुरू होते ही व्हाट्सऐप पर कोहोर्ट लीडर्स और तकनीकी सहायता तक पहुंच पाएं।",
         },
         {
-          title: "सब्सिडाइज़्ड प्राइसिंग",
+          title: "कॉलेज-आधारित फीस",
           description:
-            "लाइव लेक्चर, कोडबेस और टेम्पलेट्स तक पूरी पहुंच सिर्फ ₹599 में, जो पहले ₹999 था।",
+            "रजिस्ट्रेशन पूरा करें, अपना कॉलेज चुनें और भुगतान से पहले अपनी अंतिम फीस देखें।",
         },
       ],
     },
@@ -938,7 +989,7 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
       heading: "12 स्किल-आधारित इंटर्नशिप और सर्टिफिकेशन प्रोग्राम देखें",
       subtitle:
         "ऐसे प्रीमियम ट्रैक्स में नामांकन करें जो छात्रों को व्यावहारिक कौशल, लाइव मेंटर्स के साथ काम और मजबूत रिज्यूमे पोर्टफोलियो बनाने में मदद करें।",
-      offer: "40% छूट",
+      offer: "कॉलेज-आधारित फीस",
       browseAll: "सभी 12 प्रोग्राम देखें",
     },
     services: {
@@ -983,9 +1034,9 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
             "गैर-तकनीकी छात्रों को आवश्यक कंप्यूटिंग, डॉक्यूमेंट और इंटरनेट टूल्स से सशक्त बनाना।",
         },
         {
-          title: "सस्ती छात्र योजनाएं",
+          title: "कॉलेज-आधारित फीस कन्फर्मेशन",
           description:
-            "उच्च गुणवत्ता वाली शिक्षा को ₹599 जैसी सब्सिडाइज़्ड फीस के साथ अधिक सुलभ बनाना।",
+            "कॉलेज चयन के बाद सही प्रोग्राम फीस दिखाना ताकि हर छात्र भुगतान से पहले अंतिम राशि देख सके।",
         },
       ],
       workflowBadge: "वर्कफ़्लो गाइड",
@@ -1009,7 +1060,7 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
           step: "03",
           title: "फीस भरें",
           description:
-            "सुरक्षित Razorpay के माध्यम से ₹599 की छात्र फीस जमा करें।",
+            "अपनी कॉलेज-आधारित फीस देखें और सुरक्षित Razorpay के माध्यम से भुगतान करें।",
         },
         {
           step: "04",
@@ -1083,7 +1134,7 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
           step: "02",
           title: "प्रोग्राम ट्रैक में नामांकन करें",
           description:
-            "अपनी पसंदीदा स्किल स्पेशलाइजेशन ट्रैक में ₹599 की छात्र फीस पर नामांकन करें।",
+            "अपनी कॉलेज-आधारित फीस कन्फर्म करने के बाद पसंदीदा स्किल स्पेशलाइजेशन ट्रैक में नामांकन करें।",
         },
         {
           step: "03",
@@ -1106,10 +1157,10 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
       ],
       announcementTitle: "महत्वपूर्ण घोषणा",
       announcementDescription:
-        "आपके चुने हुए ट्रैक में नामांकन पूरा होते ही कोर्स कंटेंट, कोड प्लेग्राउंड, सपोर्ट टिकट्स और सर्टिफिकेट एक्सेस की जानकारी आपके डैशबोर्ड में सक्रिय हो जाएगी।",
+        "लाइव क्लासेस Google Meet पर होंगी। नामांकन के बाद आपकी क्लास लिंक डैशबोर्ड में दिखाई देगी।",
       ctaHeading: "आज ही अपना करियर पोर्टफोलियो मजबूत करें",
       ctaDescription:
-        "एक्टिव कोहोर्ट्स से जुड़ें और सिर्फ ₹599 में सुरक्षित, शेयर करने योग्य सत्यापन क्रेडेंशियल्स पाएं।",
+        "एक्टिव कोहोर्ट्स से जुड़ें और कॉलेज-आधारित फीस कन्फर्म होने के बाद सुरक्षित, शेयर करने योग्य सत्यापन क्रेडेंशियल्स पाएं।",
     },
     contact: {
       heading: "आधिकारिक एडमिशन और अकादमिक हेल्पलाइन",
@@ -1139,12 +1190,17 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
     portalStatusTitle: "अकादमिक पोर्टल स्टेटस",
     importantNoticeLabel: "महत्वपूर्ण सूचना:",
     portalStatusDescription:
-      "नामांकन के तुरंत बाद कोर्स कंटेंट अपलोड किया जाएगा। रजिस्ट्रेशन राउंड पूरा होने पर आपका डैशबोर्ड लाइव लेक्चर डिटेल्स, टास्क लिस्ट, प्रोजेक्ट कोडबेस और स्टूडेंट ग्रुप्स दिखाएगा।",
-    totalContribution: "कुल प्रोग्राम शुल्क",
-    includedNote: "* इंटरएक्टिव सत्यापित सर्टिफिकेशन और GST शामिल है।",
-    paymentSecurityOne: "Razorpay के माध्यम से सुरक्षित टेस्ट-मोड भुगतान।",
+      "लाइव क्लासेस Google Meet पर होंगी। नामांकन के बाद आपकी क्लास लिंक डैशबोर्ड में दिखाई देगी।",
+    totalContribution: "प्रोग्राम फीस",
+    includedNote: "अंतिम फीस भुगतान से पहले दिखाई जाएगी।",
+    programFeeLabel: "प्रोग्राम फीस",
+    loginAndRegisterToViewFee:
+      "अपनी फीस देखने के लिए लॉगिन करें और रजिस्ट्रेशन पूरा करें",
+    feePendingConfirmation: "फीस पुष्टि की प्रतीक्षा में है",
+    paymentSecurityOne:
+      "अंतिम फीस भुगतान से पहले Razorpay में दिखाई जाएगी।",
     paymentSecurityTwo:
-      "अकादमिक एक्सेस अपने आप आपके स्टूडेंट डैशबोर्ड में लॉग हो जाएगा।",
+      "लाइव क्लासेस Google Meet पर होंगी। नामांकन के बाद आपकी क्लास लिंक डैशबोर्ड में दिखाई देगी।",
     helpTitle: "एडमिशन सहायता चाहिए?",
     helpDescription:
       "यदि आपको बिलिंग या नामांकन सत्यापन में समस्या हो तो हमारे एडमिशन ऑफिस को {phone} पर कॉल करें।",
@@ -1182,6 +1238,10 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
       mobileNumber: "मोबाइल नंबर ठीक 10 अंकों का होना चाहिए।",
       email: "कृपया सही ईमेल पता दर्ज करें।",
       academicRequired: "अकादमिक इंफॉर्मेशन के सभी फ़ील्ड भरना जरूरी है।",
+      collegeSelection:
+        "अनुमोदित सूची से सही कॉलेज चुनें या Other / Not listed चुनें।",
+      otherCollegeRequired:
+        "Other / Not listed चुनने पर अपने कॉलेज का नाम दर्ज करें।",
       minimumPrograms:
         "इंटर्नशिप प्रेफरेंसेस में कम से कम 2 प्रोग्राम चुनना जरूरी है।",
       preferencesRequired:
@@ -1242,6 +1302,11 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
       universityPlaceholder: "जैसे पाटलिपुत्र यूनिवर्सिटी",
       collegeLabel: "कॉलेज का नाम *",
       collegePlaceholder: "जैसे नालंदा कॉलेज",
+      collegeSearchPlaceholder: "अपना कॉलेज खोजें और चुनें",
+      collegeHelperText:
+        "अनुमोदित कॉलेज ड्रॉपडाउन से चुनें, या Other / Not listed चुनें।",
+      otherCollegeLabel: "अन्य कॉलेज का नाम *",
+      otherCollegePlaceholder: "अपने कॉलेज का नाम दर्ज करें",
       degreeLabel: "डिग्री *",
       degreePlaceholder: "जैसे B.Tech / B.Sc / BCA",
       departmentLabel: "डिपार्टमेंट / स्ट्रीम *",
@@ -1365,7 +1430,7 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
     latestUpdate: "नवीनतम अपडेट",
     latestUpdateTitle: "कोहोर्ट आवंटन जारी है",
     latestUpdateDescription:
-      "अंतिम बैच असाइनमेंट के बाद कोर्स कंटेंट, लाइव लेक्चर लिंक और प्रोजेक्ट रिपॉजिटरी सक्रिय हो जाएंगी। अपने व्हाट्सऐप ग्रुप पर नज़र रखें।",
+      "नामांकन कन्फर्म होते ही Google Meet क्लास एक्सेस और सेशन टाइमिंग अपडेट डैशबोर्ड में दिखाई देंगे। अपने व्हाट्सऐप ग्रुप पर नज़र रखें।",
     systemUpdate: "सिस्टम अपडेट",
     systemUpdateTitle: "पोर्टल अपग्रेड पूरे हुए",
     systemUpdateDescription:
@@ -1379,6 +1444,22 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
     primaryTrack: "मुख्य ट्रैक पसंद",
     chosenPrograms: "चुने गए प्रोग्राम विकल्प",
     academicStatusTitle: "अकादमिक स्टेटस",
+    collegeFeeStatusTitle: "कॉलेज फीस स्टेटस",
+    registeredCollegeLabel: "रजिस्टर्ड कॉलेज",
+    currentFeeStatusLabel: "मौजूदा फीस स्टेटस",
+    feePendingConfirmation: "फीस पुष्टि की प्रतीक्षा में है",
+    googleMeetAccessTitle: "Google Meet क्लास एक्सेस",
+    classAccessAfterEnrollment:
+      "प्रोग्राम में नामांकन के बाद लाइव क्लास एक्सेस यहां दिखाई देगा।",
+    classLinkWillBeSharedSoon: "क्लास लिंक जल्द साझा की जाएगी",
+    classLinkReady:
+      "आपकी Google Meet क्लास लिंक डैशबोर्ड में तैयार है।",
+    classLinkAdminNote: "क्लास लिंक जल्द ही एडमिन द्वारा अपडेट की जाएगी।",
+    classLinkBeforeSession:
+      "क्लास लिंक सेशन शुरू होने से पहले साझा की जाएगी।",
+    liveClassesGoogleMeet:
+      "लाइव क्लासेस Google Meet पर होंगी। नामांकन के बाद आपकी क्लास लिंक डैशबोर्ड में दिखाई देगी।",
+    joinGoogleMeetClass: "Google Meet क्लास जॉइन करें",
     registrationVerification: "रजिस्ट्रेशन सत्यापन",
     verifiedStatus: "सत्यापित",
     digitalCertificate: "डिजिटल सर्टिफिकेट",
@@ -1424,12 +1505,12 @@ const hindiOverrides: DeepPartial<typeof englishMessages> = {
     paymentSuccessful: "पेमेंट सफल रहा!",
     successBadge: "सत्यापित नामांकन सक्रिय",
     successDescription:
-      "नालंदा फाउंडेशन में नामांकन के लिए धन्यवाद। आपका पेमेंट सिग्नेचर सफलतापूर्वक प्रमाणित हो गया है और अब आपके प्रोफाइल में इस प्रोग्राम का सक्रिय एक्सेस है।",
+      "नालंदा फाउंडेशन में नामांकन के लिए धन्यवाद। आपका भुगतान सफलतापूर्वक सत्यापित हो गया है और अब आपके डैशबोर्ड में नामांकित प्रोग्राम और Google Meet क्लास एक्सेस दिखाई देगा।",
     nextStepsTitle: "अब आगे क्या करें?",
     nextStepOne:
       "अपने डैशबोर्ड पर जाएं और आधिकारिक स्टूडेंट व्हाट्सऐप अनाउंसमेंट ग्रुप से जुड़ें।",
     nextStepTwo:
-      "फाइनल एडमिशन पूरे होते ही कोर्स कंटेंट और टास्क गाइड्स सक्रिय हो जाएंगे।",
+      "Google Meet क्लास एक्सेस और आने वाले सेशन अपडेट देखने के लिए अपना डैशबोर्ड देखें।",
   },
 };
 
@@ -1491,3 +1572,4 @@ export function resolveLanguage(value: string | null | undefined): Language {
 export function getMessages(language: Language): Messages {
   return translations[language];
 }
+

@@ -73,17 +73,14 @@ export default function ProgramsPage() {
                 </div>
 
                 <div className="flex items-baseline gap-2.5 pt-2">
-                  <span className="text-xl font-extrabold text-[#800020]">
-                    {"\u20B9"}
-                    {program.price}
-                  </span>
-                  <span className="text-xs font-semibold text-[#5C4D4D] line-through">
-                    {"\u20B9"}
-                    {program.originalPrice}
-                  </span>
-                  <span className="rounded border border-green-200 bg-green-50 px-2 py-0.5 text-[9px] font-bold uppercase text-green-700">
-                    {messages.common.saveFortyPercent}
-                  </span>
+                  <div className="space-y-1">
+                    <div className="text-xl font-extrabold text-[#800020]">
+                      {messages.common.feeVariesByCollege}
+                    </div>
+                    <p className="text-[10px] font-medium leading-relaxed text-[#5C4D4D]">
+                      {messages.common.finalFeeShownBeforePayment}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
 

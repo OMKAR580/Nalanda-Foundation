@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import Razorpay from 'razorpay';
 import { getRegistrationStatus } from '@/lib/registration/server';
-import { courses, Course } from '@/data/courses';
+import { courses } from '@/data/courses';
+import {
+  COLLEGE_FEE_NOT_CONFIGURED_MESSAGE,
+  getCollegeFeeDetails,
+} from '@/lib/programAccess';
 
 export async function POST(req: Request) {
   try {
@@ -43,13 +47,25 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Course ID is required' }, { status: 400 });
     }
 
-    // Fetch course from courses data to ensure price is accurate
-    const course = courses.find((c: Course) => c.id === courseId);
+    const course = courses.find((courseItem) => courseItem.id === courseId);
     if (!course) {
       return NextResponse.json({ error: 'Course not found' }, { status: 404 });
     }
 
-    const amount = course.price * 100; // Razorpay expects amount in paise
+    const collegeName =
+      typeof status.registration?.college_name === 'string'
+        ? status.registration.college_name
+        : null;
+    const { fee } = getCollegeFeeDetails(collegeName);
+
+    if (fee === null) {
+      return NextResponse.json(
+        { error: COLLEGE_FEE_NOT_CONFIGURED_MESSAGE },
+        { status: 409 }
+      );
+    }
+
+    const amount = fee * 100; // Razorpay expects amount in paise
     const currency = 'INR';
 
     const options = {
@@ -65,6 +81,7 @@ export async function POST(req: Request) {
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
+      fee,
     });
   } catch (error) {
     const err = error as { message?: string } | null | undefined;

@@ -14,9 +14,16 @@ import {
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { useRegistrationStatus } from "@/components/auth/RegistrationStatusProvider";
+import {
+  getCollegeOptions,
+  isOtherCollegeOption,
+  resolveCollegeSelection,
+} from "@/data/colleges";
 import { courses } from "@/data/courses";
 import { useLanguage } from "@/hooks/useLanguage";
 import { captureEvent } from "@/lib/analytics/posthog";
+
+const collegeOptions = getCollegeOptions();
 
 export default function RegistrationForm({
   initialEmail = "",
@@ -48,6 +55,7 @@ export default function RegistrationForm({
     pin_code: "",
     university_name: "",
     college_name: "",
+    other_college_name: "",
     degree: "",
     department_stream: "",
     class_semester: "",
@@ -94,6 +102,9 @@ export default function RegistrationForm({
     setFormData((previous) => ({
       ...previous,
       [name]: value,
+      ...(name === "college_name" && !isOtherCollegeOption(value)
+        ? { other_college_name: "" }
+        : {}),
     }));
   };
 
@@ -160,6 +171,21 @@ export default function RegistrationForm({
       return formMessages.validation.academicRequired;
     }
 
+    const resolvedCollege = resolveCollegeSelection(
+      formData.college_name,
+      formData.other_college_name
+    );
+
+    if (resolvedCollege.error === "invalid_college") {
+      setActiveTab("academic");
+      return formMessages.validation.collegeSelection;
+    }
+
+    if (resolvedCollege.error === "missing_other_college") {
+      setActiveTab("academic");
+      return formMessages.validation.otherCollegeRequired;
+    }
+
     if (formData.internship_programs.length < 2) {
       setActiveTab("preferences");
       return formMessages.validation.minimumPrograms;
@@ -197,6 +223,8 @@ export default function RegistrationForm({
 
     return null;
   };
+
+  const isOtherCollegeSelected = isOtherCollegeOption(formData.college_name);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -501,14 +529,41 @@ export default function RegistrationForm({
                     </label>
                     <input
                       type="text"
+                      list="approved-college-options"
                       name="college_name"
                       required
                       value={formData.college_name}
                       onChange={handleChange}
                       className="w-full rounded-md border border-[#D6C7B2] bg-[#FAF6EE] px-3.5 py-2.5 text-sm text-[#2E1E1E] shadow-inner transition-shadow focus:outline-none focus:ring-1 focus:ring-[#800020]"
-                      placeholder={academic.collegePlaceholder}
+                      placeholder={academic.collegeSearchPlaceholder}
+                      autoComplete="off"
                     />
+                    <datalist id="approved-college-options">
+                      {collegeOptions.map((collegeName) => (
+                        <option key={collegeName} value={collegeName} />
+                      ))}
+                    </datalist>
+                    <p className="mt-1 text-[10px] text-[#5C4D4D]">
+                      {academic.collegeHelperText}
+                    </p>
                   </div>
+
+                  {isOtherCollegeSelected ? (
+                    <div>
+                      <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5C4D4D]">
+                        {academic.otherCollegeLabel}
+                      </label>
+                      <input
+                        type="text"
+                        name="other_college_name"
+                        required
+                        value={formData.other_college_name}
+                        onChange={handleChange}
+                        className="w-full rounded-md border border-[#D6C7B2] bg-[#FAF6EE] px-3.5 py-2.5 text-sm text-[#2E1E1E] shadow-inner transition-shadow focus:outline-none focus:ring-1 focus:ring-[#800020]"
+                        placeholder={academic.otherCollegePlaceholder}
+                      />
+                    </div>
+                  ) : null}
 
                   <div>
                     <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5C4D4D]">

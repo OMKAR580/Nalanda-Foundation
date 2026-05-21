@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { currentSite, SITE_VARIANT } from "@/config/site";
 import { ClerkProvider } from "@clerk/nextjs";
@@ -21,16 +20,6 @@ const themeInitScript = `
   } catch {}
 `;
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: `${currentSite.name} | Premium Education`,
   description: currentSite.description,
@@ -49,7 +38,7 @@ export default async function RootLayout({
     <ClerkProvider>
       <html
         lang={initialLanguage}
-        className={`${geistSans.variable} ${geistMono.variable} theme-${SITE_VARIANT} h-full antialiased`}
+        className={`theme-${SITE_VARIANT} h-full antialiased`}
         suppressHydrationWarning
       >
         <head>

@@ -51,7 +51,6 @@ interface CustomWindow extends Window {
 }
 
 interface CheckoutOptions {
-  amount: number;
   courseId: string;
   courseName: string;
   programSlug: string;
@@ -68,7 +67,6 @@ export const loadRazorpayScript = (): Promise<boolean> => {
 };
 
 export const handleCheckout = async ({
-  amount: price,
   courseId,
   courseName,
   programSlug,
@@ -91,8 +89,7 @@ export const handleCheckout = async ({
     const res = await loadRazorpayScript();
 
     if (!res) {
-      alert("Razorpay SDK failed to load. Are you online?");
-      return;
+      throw new Error("Razorpay SDK failed to load. Are you online?");
     }
 
     const orderRes = await fetch("/api/create-order", {
@@ -102,17 +99,25 @@ export const handleCheckout = async ({
     });
 
     if (!orderRes.ok) {
-      throw new Error("Failed to create order");
+      const payload = (await orderRes.json().catch(() => null)) as
+        | { error?: string }
+        | null;
+      throw new Error(payload?.error || "Failed to create order");
     }
 
-    const { orderId, amount, currency } = await orderRes.json();
+    const { orderId, amount, currency } = (await orderRes.json()) as {
+      orderId: string;
+      amount: number;
+      currency: string;
+    };
+    const feeAmount = amount / 100;
 
     const options: RazorpayOptions = {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
       amount: amount.toString(),
       currency,
       name: courseName,
-      description: `Enrollment for ${courseName} (\u20B9${price})`,
+      description: `Enrollment for ${courseName}`,
       order_id: orderId,
       handler: async (response: RazorpayResponse) => {
         try {
@@ -128,7 +133,7 @@ export const handleCheckout = async ({
           });
 
           if (verifyRes.ok) {
-            window.location.href = `/payment-success?course_id=${courseId}&status=success`;
+            window.location.href = `/payment-success?course_id=${courseId}&status=success&amount=${encodeURIComponent(feeAmount.toString())}`;
             return;
           }
 
@@ -164,7 +169,7 @@ export const handleCheckout = async ({
     }
 
     captureEvent("payment_started", {
-      amount: price,
+      amount: feeAmount,
       program_slug: programSlug,
     });
 
@@ -177,6 +182,10 @@ export const handleCheckout = async ({
   } catch (error) {
     recordPaymentFailure("failed");
     console.error("Checkout error:", error);
-    alert("Something went wrong during checkout.");
+    throw (
+      error instanceof Error
+        ? error
+        : new Error("Something went wrong during checkout.")
+    );
   }
 };

@@ -65,18 +65,32 @@ export async function saveStudentRegistration(clerkUserId: string, data: Record<
   if (!clerkUserId) {
     return { data: null, error: new Error('Clerk User ID is required') };
   }
-  const payload = {
+  const payload: Record<string, unknown> = {
     ...data,
     clerk_user_id: clerkUserId,
     registration_completed: true,
     updated_at: new Date().toISOString()
   };
 
-  const { data: res, error } = await supabaseAdmin
-    .from('student_registrations')
-    .upsert(payload, { onConflict: 'clerk_user_id' })
-    .select()
-    .single();
+  const upsertRegistration = async (registrationPayload: Record<string, unknown>) =>
+    supabaseAdmin
+      .from('student_registrations')
+      .upsert(registrationPayload, { onConflict: 'clerk_user_id' })
+      .select()
+      .single();
+
+  let { data: res, error } = await upsertRegistration(payload);
+
+  if (
+    error &&
+    Object.prototype.hasOwnProperty.call(payload, 'other_college_name') &&
+    /other_college_name/i.test(error.message)
+  ) {
+    const fallbackPayload = { ...payload };
+    delete fallbackPayload.other_college_name;
+
+    ({ data: res, error } = await upsertRegistration(fallbackPayload));
+  }
 
   return { data: res, error };
 }
