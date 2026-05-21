@@ -5,8 +5,10 @@ import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
 import { ArrowLeft, ArrowRight, Star } from "lucide-react";
 import { testimonials } from "@/data/testimonials";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function CircularTestimonials() {
+  const { messages } = useLanguage();
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState(0); // -1 for prev, 1 for next
   const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
@@ -231,7 +233,7 @@ export function CircularTestimonials() {
                     className={`h-2 transition-all duration-300 rounded-full ${
                       index === activeIndex ? "w-6 bg-[var(--primary)]" : "w-2 bg-[var(--primary)]/30 hover:bg-[var(--primary)]/65"
                     }`}
-                    aria-label={`Go to testimonial ${index + 1}`}
+                    aria-label={`${messages.testimonials.dotAriaPrefix} ${index + 1}`}
                   />
                 ))}
               </div>
@@ -241,14 +243,14 @@ export function CircularTestimonials() {
                 <button
                   onClick={handlePrev}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2E1E1E] hover:bg-[#800020] text-white transition-all active:scale-95 shadow-md"
-                  aria-label="Previous Testimonial"
+                  aria-label={messages.testimonials.previousAria}
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
                 <button
                   onClick={handleNext}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-[#2E1E1E] hover:bg-[#800020] text-white transition-all active:scale-95 shadow-md"
-                  aria-label="Next Testimonial"
+                  aria-label={messages.testimonials.nextAria}
                 >
                   <ArrowRight className="h-5 w-5" />
                 </button>

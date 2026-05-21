@@ -3,18 +3,11 @@
 import { useState, useEffect } from "react";
 import { useReducedMotion } from "framer-motion";
 
-const words = [
-  "Modern Career Skills",
-  "Practical Learning",
-  "Verified Certifications",
-  "Future-Ready Growth",
-];
-
 const TYPING_SPEED = 90;
 const DELETING_SPEED = 40;
 const PAUSE_DURATION = 2200;
 
-export function TypewriterHeadline() {
+export function TypewriterHeadline({ words }: { words: readonly string[] }) {
   const [text, setText] = useState("");
   const [wordIndex, setWordIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -54,13 +47,13 @@ export function TypewriterHeadline() {
     }, isDeleting ? DELETING_SPEED : TYPING_SPEED);
 
     return () => clearTimeout(timer);
-  }, [text, isDeleting, wordIndex, prefersReducedMotion, isMounted]);
+  }, [text, isDeleting, wordIndex, prefersReducedMotion, isMounted, words]);
 
   if (!isMounted) {
     return (
       <span className="inline-flex min-h-[1.2em]">
         <span className="bg-gradient-to-r from-[#670917] via-[#C35237] to-[#D08E2F] bg-clip-text text-transparent">
-          Modern Career Skills
+          {words[0]}
         </span>
       </span>
     );

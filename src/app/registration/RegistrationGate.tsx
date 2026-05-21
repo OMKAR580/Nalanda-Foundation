@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
@@ -8,6 +8,8 @@ import { AuthStatusCard } from "@/components/auth/AuthStatusCard";
 import { Button } from "@/components/ui/Button";
 import type { RegistrationStatusPayload } from "@/lib/registration/types";
 import RegistrationForm from "./RegistrationForm";
+import { useLanguage } from "@/hooks/useLanguage";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 interface RegistrationGateProps {
   configIssue: string | null;
@@ -16,9 +18,11 @@ interface RegistrationGateProps {
 export default function RegistrationGate({ configIssue }: RegistrationGateProps) {
   const router = useRouter();
   const { isLoaded, isSignedIn, user } = useUser();
+  const { messages } = useLanguage();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isRegistrationReady, setIsRegistrationReady] = useState(false);
   const [retryNonce, setRetryNonce] = useState(0);
+  const hasTrackedRegistrationStartRef = useRef(false);
 
   useEffect(() => {
     if (!isLoaded) {
@@ -50,14 +54,14 @@ export default function RegistrationGate({ configIssue }: RegistrationGateProps)
           if (response.status === 401) {
             const suffix = configIssue
               ? ` Development setup warning: ${configIssue}`
-              : " Please sign in again and retry.";
+              : ` ${messages.registrationGate.signedInVerificationSuffix}`;
+
             setErrorMessage(
-              `Your browser says you are signed in, but the app server could not verify that session.${suffix}`
+              `${messages.registrationGate.signedInVerificationPrefix}${suffix}`
             );
           } else {
             setErrorMessage(
-              payload?.error ||
-                "We could not load your registration status from Supabase."
+              payload?.error || messages.registrationGate.statusLoadError
             );
           }
 
@@ -69,9 +73,10 @@ export default function RegistrationGate({ configIssue }: RegistrationGateProps)
         if (!payload.authenticated) {
           const suffix = configIssue
             ? ` Development setup warning: ${configIssue}`
-            : " Please sign in again and retry.";
+            : ` ${messages.registrationGate.signedInVerificationSuffix}`;
+
           setErrorMessage(
-            `Your browser says you are signed in, but the app server could not verify that session.${suffix}`
+            `${messages.registrationGate.signedInVerificationPrefix}${suffix}`
           );
           return;
         }
@@ -84,9 +89,7 @@ export default function RegistrationGate({ configIssue }: RegistrationGateProps)
         setIsRegistrationReady(true);
       } catch {
         if (!cancelled) {
-          setErrorMessage(
-            "We could not load your registration status. Please check your connection and retry."
-          );
+          setErrorMessage(messages.registrationGate.networkError);
         }
       }
     };
@@ -96,13 +99,22 @@ export default function RegistrationGate({ configIssue }: RegistrationGateProps)
     return () => {
       cancelled = true;
     };
-  }, [configIssue, isLoaded, isSignedIn, retryNonce, router]);
+  }, [configIssue, isLoaded, isSignedIn, messages, retryNonce, router]);
+
+  useEffect(() => {
+    if (!isRegistrationReady || hasTrackedRegistrationStartRef.current) {
+      return;
+    }
+
+    hasTrackedRegistrationStartRef.current = true;
+    captureEvent("registration_started", { page_path: "/registration" });
+  }, [isRegistrationReady]);
 
   if (!isLoaded || (isSignedIn && !isRegistrationReady && !errorMessage)) {
     return (
       <AuthStatusCard
-        title="Checking registration..."
-        description="We are validating your Clerk session and checking whether your registration is already complete."
+        title={messages.registrationGate.checkingTitle}
+        description={messages.registrationGate.checkingDescription}
       />
     );
   }
@@ -110,8 +122,8 @@ export default function RegistrationGate({ configIssue }: RegistrationGateProps)
   if (!isSignedIn) {
     return (
       <AuthStatusCard
-        title="Redirecting..."
-        description="You need to sign in before we can show the registration form."
+        title={messages.registrationGate.redirectingTitle}
+        description={messages.registrationGate.redirectingDescription}
       />
     );
   }
@@ -119,7 +131,7 @@ export default function RegistrationGate({ configIssue }: RegistrationGateProps)
   if (errorMessage) {
     return (
       <AuthStatusCard
-        title="Error loading registration"
+        title={messages.registrationGate.errorTitle}
         description={errorMessage}
         tone="error"
         actions={
@@ -131,10 +143,12 @@ export default function RegistrationGate({ configIssue }: RegistrationGateProps)
                 setRetryNonce((value) => value + 1);
               }}
             >
-              Retry
+              {messages.common.retry}
             </Button>
             <Button asChild variant="outline">
-              <Link href="/sign-in?redirect_url=/registration">Back to Sign In</Link>
+              <Link href="/sign-in?redirect_url=/registration">
+                {messages.common.backToSignIn}
+              </Link>
             </Button>
           </>
         }
@@ -147,23 +161,23 @@ export default function RegistrationGate({ configIssue }: RegistrationGateProps)
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
           <span className="mb-3 inline-block rounded-full bg-[#800020] px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-[#FAF6EE] shadow-sm">
-            Nalanda Foundation Learning & Certification Portal
+            {messages.registrationGate.portalBadge}
           </span>
           <h1 className="mb-4 font-serif text-3xl font-extrabold tracking-tight text-[#2E1E1E] sm:text-5xl">
-            Official Registration Portal
+            {messages.registrationGate.heading}
           </h1>
           <p className="mx-auto max-w-2xl text-sm text-[#5C4D4D] sm:text-base">
-            Please complete all details below carefully. Selected students will receive an
-            official offer letter and enrollment panel on their dashboard.
+            {messages.registrationGate.description}
           </p>
         </div>
 
         {configIssue ? (
           <div className="mb-8 rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 text-sm text-amber-900 shadow-sm">
-            <strong className="block font-semibold">Development Clerk setup warning</strong>
-            <span className="block mt-1">
-              {configIssue} This page uses a verified session-cookie fallback so you can still
-              continue testing the registration flow locally.
+            <strong className="block font-semibold">
+              {messages.registrationGate.devWarningTitle}
+            </strong>
+            <span className="mt-1 block">
+              {configIssue} {messages.registrationGate.devWarningDescription}
             </span>
           </div>
         ) : null}

@@ -2,42 +2,66 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export function CursorGlow() {
   const glowRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const isDesktopPointer = useMediaQuery(
+    "(min-width: 1024px) and (hover: hover) and (pointer: fine)",
+  );
 
   // Mouse positions
   const mouseCoords = useRef({ x: 0, y: 0 });
   const glowCoords = useRef({ x: 0, y: 0 });
+  const visibilityRef = useRef(false);
+  const isEnabled = isDesktopPointer && !prefersReducedMotion;
 
   useEffect(() => {
-    // 1. Detect if desktop & not touch-device
-    const checkDevice = () => {
-      const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
-      const isWideScreen = window.innerWidth >= 1024;
-      setIsDesktop(!hasTouch && isWideScreen);
-    };
+    if (!isEnabled) {
+      visibilityRef.current = false;
+      const resetVisibility = requestAnimationFrame(() => {
+        glowCoords.current = { x: 0, y: 0 };
+        mouseCoords.current = { x: 0, y: 0 };
+        setIsVisible(false);
+      });
 
-    checkDevice();
-    window.addEventListener("resize", checkDevice);
+      return () => {
+        cancelAnimationFrame(resetVisibility);
+      };
+    }
+
+    if (glowRef.current) {
+      glowRef.current.style.transform = "translate3d(0px, 0px, 0)";
+      glowCoords.current = { x: 0, y: 0 };
+      mouseCoords.current = { x: 0, y: 0 };
+    }
+
+    const resetPointerState = requestAnimationFrame(() => {
+      setIsVisible(false);
+    });
 
     return () => {
-      window.removeEventListener("resize", checkDevice);
+      cancelAnimationFrame(resetPointerState);
     };
-  }, []);
+  }, [isEnabled]);
 
   useEffect(() => {
-    if (!isDesktop || prefersReducedMotion) return;
+    if (!isEnabled) {
+      return;
+    }
 
     const handleMouseMove = (e: MouseMoveEvent) => {
       mouseCoords.current = { x: e.clientX, y: e.clientY };
-      if (!isVisible) setIsVisible(true);
+      if (!visibilityRef.current) {
+        visibilityRef.current = true;
+        setIsVisible(true);
+      }
     };
 
     const handleMouseLeave = () => {
+      visibilityRef.current = false;
       setIsVisible(false);
     };
 
@@ -77,9 +101,9 @@ export function CursorGlow() {
       document.removeEventListener("mouseleave", handleMouseLeave);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [isDesktop, isVisible, prefersReducedMotion]);
+  }, [isEnabled]);
 
-  if (!isDesktop || prefersReducedMotion) return null;
+  if (!isEnabled) return null;
 
   return (
     <div

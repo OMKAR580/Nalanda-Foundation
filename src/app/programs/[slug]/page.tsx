@@ -1,34 +1,67 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { notFound, useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import {
+  AlertCircle,
+  ArrowLeft,
+  Award,
+  BookOpen,
+  ChevronRight,
+  Clock,
+  Globe2,
+  PhoneCall,
+  ShieldCheck,
+} from "lucide-react";
 import { getCourseBySlug } from "@/data/courses";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { useRegistrationStatus } from "@/components/auth/RegistrationStatusProvider";
 import { handleCheckout } from "@/lib/razorpay/checkout";
-import { notFound } from "next/navigation";
-import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { Award, Clock, Globe2, BookOpen, ChevronRight, ShieldCheck, AlertCircle, PhoneCall, ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { currentSite } from "@/config/site";
 import { CourseImage } from "@/components/ui/CourseImage";
+import { useLanguage } from "@/hooks/useLanguage";
+import { captureEvent } from "@/lib/analytics/posthog";
 
-export default function ProgramDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default function ProgramDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const resolvedParams = use(params);
   const program = getCourseBySlug(resolvedParams.slug);
   const { isSignedIn } = useAuth();
   const { status, refreshRegistrationStatus } = useRegistrationStatus();
+  const { messages } = useLanguage();
   const router = useRouter();
   const [checkingRegistration, setCheckingRegistration] = useState(false);
   const [checkoutMessage, setCheckoutMessage] = useState<string | null>(null);
+  const hasTrackedProgramViewRef = useRef(false);
 
   if (!program) {
     notFound();
   }
 
+  useEffect(() => {
+    if (hasTrackedProgramViewRef.current) {
+      return;
+    }
+
+    hasTrackedProgramViewRef.current = true;
+    captureEvent("program_viewed", {
+      program_slug: program.slug,
+      program_category: program.category,
+    });
+  }, [program.category, program.slug]);
+
   const onBuyNow = async () => {
     setCheckoutMessage(null);
+    captureEvent("enroll_clicked", {
+      amount: program.price,
+      program_slug: program.slug,
+    });
 
     if (!isSignedIn) {
       router.push("/sign-in?redirect_url=/registration");
@@ -36,14 +69,13 @@ export default function ProgramDetailPage({ params }: { params: Promise<{ slug: 
     }
 
     setCheckingRegistration(true);
+
     try {
       const latestStatus = await refreshRegistrationStatus();
       const resolvedStatus = latestStatus ?? status;
 
       if (!latestStatus && !resolvedStatus.authenticated) {
-        setCheckoutMessage(
-          "We could not verify your registration right now. Please retry in a moment."
-        );
+        setCheckoutMessage(messages.programDetail.checkoutRetryMessage);
         return;
       }
 
@@ -57,145 +89,160 @@ export default function ProgramDetailPage({ params }: { params: Promise<{ slug: 
         return;
       }
 
-      await handleCheckout(program.id, program.title, program.price);
-    } catch (err) {
-      console.error("Error verifying registration status or starting checkout:", err);
-      setCheckoutMessage(
-        "We could not verify your registration or start checkout right now. Please retry in a moment."
-      );
+      await handleCheckout({
+        amount: program.price,
+        courseId: program.id,
+        courseName: program.title,
+        programSlug: program.slug,
+      });
+    } catch (error) {
+      console.error("Error verifying registration status or starting checkout:", error);
+      setCheckoutMessage(messages.programDetail.checkoutErrorMessage);
     } finally {
       setCheckingRegistration(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF6EE] text-[#2E1E1E] py-12 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-6xl mx-auto space-y-8">
-
-        {/* Navigation Breadcrumb */}
+    <div className="min-h-screen bg-[#FAF6EE] px-4 py-12 font-sans text-[#2E1E1E] sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex items-center gap-2 text-xs font-semibold text-[#5C4D4D]">
-          <Link href="/programs" className="hover:text-[#800020] flex items-center gap-1">
-            <ArrowLeft className="h-3 w-3" /> Back to Programs
+          <Link href="/programs" className="flex items-center gap-1 hover:text-[#800020]">
+            <ArrowLeft className="h-3 w-3" /> {messages.programDetail.backToPrograms}
           </Link>
           <ChevronRight className="h-3 w-3 text-[#D6C7B2]" />
-          <span className="text-[#800020] truncate">{program.title}</span>
+          <span className="truncate text-[#800020]">{program.title}</span>
         </div>
 
-        {/* Main detail columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-
-          {/* Details (Left Columns) */}
-          <div className="lg:col-span-2 space-y-8">
-
-            {/* Main Header Info */}
+        <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-3">
+          <div className="space-y-8 lg:col-span-2">
             <div className="space-y-4">
-              <span className="inline-block text-xs font-bold uppercase tracking-wider text-[#FAF6EE] bg-[#C35237] px-3 py-1 rounded-md">
-                {program.category} Stream
+              <span className="inline-block rounded-md bg-[#C35237] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#FAF6EE]">
+                {program.category} {messages.programDetail.streamSuffix}
               </span>
-              <h1 className="text-3xl sm:text-5xl font-extrabold text-[#2E1E1E] tracking-tight font-serif leading-tight">
+              <h1 className="font-serif text-3xl font-extrabold leading-tight tracking-tight text-[#2E1E1E] sm:text-5xl">
                 {program.title}
               </h1>
-              <p className="text-base sm:text-lg text-[#5C4D4D] leading-relaxed">
+              <p className="text-base leading-relaxed text-[#5C4D4D] sm:text-lg">
                 {program.fullDescription}
               </p>
             </div>
 
-            {/* Core Specs Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6 border-y border-[#D6C7B2]/60">
+            <div className="grid grid-cols-2 gap-4 border-y border-[#D6C7B2]/60 py-6 sm:grid-cols-4">
               <div className="space-y-1">
-                <span className="block text-[10px] uppercase font-bold text-[#5C4D4D]">Program Duration</span>
-                <span className="font-extrabold text-sm text-[#2E1E1E] flex items-center gap-1">
+                <span className="block text-[10px] font-bold uppercase text-[#5C4D4D]">
+                  {messages.programDetail.duration}
+                </span>
+                <span className="flex items-center gap-1 text-sm font-extrabold text-[#2E1E1E]">
                   <Clock className="h-4 w-4 text-[#C35237]" />
                   {program.duration}
                 </span>
               </div>
               <div className="space-y-1">
-                <span className="block text-[10px] uppercase font-bold text-[#5C4D4D]">Internship Mode</span>
-                <span className="font-extrabold text-sm text-[#2E1E1E] flex items-center gap-1">
+                <span className="block text-[10px] font-bold uppercase text-[#5C4D4D]">
+                  {messages.programDetail.internshipMode}
+                </span>
+                <span className="flex items-center gap-1 text-sm font-extrabold text-[#2E1E1E]">
                   <Globe2 className="h-4 w-4 text-[#C35237]" />
-                  Flexible
+                  {messages.programDetail.flexible}
                 </span>
               </div>
               <div className="space-y-1">
-                <span className="block text-[10px] uppercase font-bold text-[#5C4D4D]">Skill Level</span>
-                <span className="font-extrabold text-sm text-[#2E1E1E] flex items-center gap-1">
+                <span className="block text-[10px] font-bold uppercase text-[#5C4D4D]">
+                  {messages.programDetail.skillLevel}
+                </span>
+                <span className="flex items-center gap-1 text-sm font-extrabold text-[#2E1E1E]">
                   <BookOpen className="h-4 w-4 text-[#C35237]" />
                   {program.level}
                 </span>
               </div>
               <div className="space-y-1">
-                <span className="block text-[10px] uppercase font-bold text-[#5C4D4D]">Certification</span>
-                <span className="font-extrabold text-sm text-[#2E1E1E] flex items-center gap-1">
+                <span className="block text-[10px] font-bold uppercase text-[#5C4D4D]">
+                  {messages.programDetail.certification}
+                </span>
+                <span className="flex items-center gap-1 text-sm font-extrabold text-[#2E1E1E]">
                   <Award className="h-4 w-4 text-[#D97706]" />
-                  Verified
+                  {messages.common.verified}
                 </span>
               </div>
             </div>
 
-            {/* Skills Acquired Card */}
             <div className="space-y-3">
-              <h3 className="font-serif font-extrabold text-lg text-[#800020]">Key Skills You Will Acquire</h3>
+              <h3 className="font-serif text-lg font-extrabold text-[#800020]">
+                {messages.programDetail.skillsHeading}
+              </h3>
               <div className="flex flex-wrap gap-2.5">
                 {program.skills.map((skill) => (
-                  <span key={skill} className="px-4 py-2 text-xs font-bold rounded-lg bg-[#FFFDF9] text-[#800020] border border-[#D6C7B2] shadow-inner">
+                  <span
+                    key={skill}
+                    className="rounded-lg border border-[#D6C7B2] bg-[#FFFDF9] px-4 py-2 text-xs font-bold text-[#800020] shadow-inner"
+                  >
                     {skill}
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* Crucial Timetable Warning Banner */}
-            <div className="bg-[#FAF0D9]/70 border border-[#D97706]/30 p-5 rounded-2xl flex items-start gap-4 shadow-inner">
-              <div className="h-9 w-9 rounded-full bg-[#FAF0D9] flex items-center justify-center text-[#D97706] flex-shrink-0">
+            <div className="flex items-start gap-4 rounded-2xl border border-[#D97706]/30 bg-[#FAF0D9]/70 p-5 shadow-inner">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FAF0D9] text-[#D97706]">
                 <AlertCircle className="h-5 w-5" />
               </div>
               <div className="space-y-1">
-                <h4 className="font-bold text-sm text-[#2E1E1E]">Academic Portal Status</h4>
-                <p className="text-xs text-[#5C4D4D] leading-relaxed">
-                  <strong>Important Notice:</strong> Course content will be uploaded soon after enrollment. Your official dashboard will display live lecture coordinates, tasks lists, project codebases, and student groups immediately upon concluding registration rounds.
+                <h4 className="text-sm font-bold text-[#2E1E1E]">
+                  {messages.programDetail.portalStatusTitle}
+                </h4>
+                <p className="text-xs leading-relaxed text-[#5C4D4D]">
+                  <strong>{messages.programDetail.importantNoticeLabel}</strong>{" "}
+                  {messages.programDetail.portalStatusDescription}
                 </p>
               </div>
             </div>
-
           </div>
 
-          {/* Checkout Card (Right Column) */}
           <div className="space-y-6">
-            <div className="sticky top-28 border border-[#D6C7B2] bg-[#FFFDF9] rounded-2xl overflow-hidden shadow-xl">
-              <div className="h-48 w-full relative overflow-hidden">
+            <div className="sticky top-28 overflow-hidden rounded-2xl border border-[#D6C7B2] bg-[#FFFDF9] shadow-xl">
+              <div className="relative h-48 w-full overflow-hidden">
                 <CourseImage
                   src={program.image}
                   alt={program.title}
                   category={program.category}
                   fill
                   priority
+                  sizes="(max-width: 1024px) 100vw, 24rem"
                 />
               </div>
-              <div className="p-6 md:p-8 space-y-6">
-
-                {/* Cost Panel */}
+              <div className="space-y-6 p-6 md:p-8">
                 <div className="space-y-1">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#5C4D4D]">Total Program Contribution</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#5C4D4D]">
+                    {messages.programDetail.totalContribution}
+                  </span>
                   <div className="flex items-baseline gap-3">
-                    <span className="text-3xl font-extrabold text-[#800020]">₹{program.price}</span>
-                    <span className="text-sm font-semibold text-[#5C4D4D] line-through">₹{program.originalPrice}</span>
-                    <span className="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200 uppercase">
-                      Save 40%
+                    <span className="text-3xl font-extrabold text-[#800020]">
+                      {"\u20B9"}
+                      {program.price}
+                    </span>
+                    <span className="text-sm font-semibold text-[#5C4D4D] line-through">
+                      {"\u20B9"}
+                      {program.originalPrice}
+                    </span>
+                    <span className="rounded border border-green-200 bg-green-50 px-2 py-0.5 text-[10px] font-bold uppercase text-green-700">
+                      {messages.common.saveFortyPercent}
                     </span>
                   </div>
-                  <span className="block text-[10px] text-green-700 font-semibold pt-1">
-                    * Interactive verified certification & GST included.
+                  <span className="block pt-1 text-[10px] font-semibold text-green-700">
+                    {messages.programDetail.includedNote}
                   </span>
                 </div>
 
-                {/* Primary Buy CTA */}
                 <Button
                   size="lg"
                   disabled={checkingRegistration}
-                  className="w-full text-sm h-12 bg-[#800020] hover:bg-[#6B1D2F] text-[#FAF6EE] font-bold rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#800020] text-sm font-bold text-[#FAF6EE] shadow-md transition-all hover:bg-[#6B1D2F]"
                   onClick={onBuyNow}
                 >
-                  {checkingRegistration ? "Processing..." : "Enroll & Pay Now"}
+                  {checkingRegistration
+                    ? messages.common.processing
+                    : messages.common.enrollAndPayNow}
                 </Button>
 
                 {checkoutMessage ? (
@@ -204,34 +251,34 @@ export default function ProgramDetailPage({ params }: { params: Promise<{ slug: 
                   </div>
                 ) : null}
 
-                {/* Checkout security alerts */}
                 <div className="space-y-2 border-t border-[#D6C7B2]/30 pt-4.5 text-[10px] text-[#5C4D4D]">
                   <div className="flex items-center gap-1.5 font-semibold">
                     <ShieldCheck className="h-4 w-4 text-[#D97706]" />
-                    <span>Safe test-mode payment processed through Razorpay.</span>
+                    <span>{messages.programDetail.paymentSecurityOne}</span>
                   </div>
                   <div className="flex items-center gap-1.5 font-semibold">
                     <BookOpen className="h-4 w-4 text-[#D97706]" />
-                    <span>Academic access logged automatically into your student dashboard.</span>
+                    <span>{messages.programDetail.paymentSecurityTwo}</span>
                   </div>
                 </div>
-
               </div>
             </div>
 
-            {/* Helpline details */}
-            <Card className="border border-[#D6C7B2] bg-[#FAF6EE] rounded-xl p-5 border-dashed flex items-start gap-3">
-              <PhoneCall className="h-5 w-5 text-[#C35237] mt-0.5 flex-shrink-0" />
+            <Card className="flex items-start gap-3 rounded-xl border border-dashed border-[#D6C7B2] bg-[#FAF6EE] p-5">
+              <PhoneCall className="mt-0.5 h-5 w-5 shrink-0 text-[#C35237]" />
               <div>
-                <h4 className="font-extrabold text-xs text-[#800020] uppercase tracking-wider">Need Admission Help?</h4>
-                <p className="text-[10px] text-[#5C4D4D] mt-0.5 leading-relaxed">
-                  Call our admissions office at <strong>{currentSite.contact.phone}</strong> if you face billing or enrollment validation problems.
+                <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#800020]">
+                  {messages.programDetail.helpTitle}
+                </h4>
+                <p className="mt-0.5 text-[10px] leading-relaxed text-[#5C4D4D]">
+                  {messages.programDetail.helpDescription.replace(
+                    "{phone}",
+                    currentSite.contact.phone
+                  )}
                 </p>
               </div>
             </Card>
-
           </div>
-
         </div>
       </div>
     </div>

@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useSyncExternalStore } from "react";
+import { useEffect, useRef } from "react";
 import { type LucideIcon } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import { gsap } from "gsap";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 
 export interface HeroVisualBadge {
@@ -16,28 +17,12 @@ export interface HeroVisualBadge {
 
 const INTERACTIVE_DESKTOP_QUERY =
   "(min-width: 1024px) and (hover: hover) and (pointer: fine)";
-
-function subscribeToInteractiveDesktop(callback: () => void) {
-  const mediaQueryList = window.matchMedia(INTERACTIVE_DESKTOP_QUERY);
-
-  mediaQueryList.addEventListener("change", callback);
-
-  return () => {
-    mediaQueryList.removeEventListener("change", callback);
-  };
-}
-
-function getInteractiveDesktopSnapshot() {
-  return window.matchMedia(INTERACTIVE_DESKTOP_QUERY).matches;
-}
+const ANIMATED_MOBILE_SAFE_QUERY = "(min-width: 768px)";
 
 export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
   const prefersReducedMotion = useReducedMotion();
-  const isInteractiveDesktop = useSyncExternalStore(
-    subscribeToInteractiveDesktop,
-    getInteractiveDesktopSnapshot,
-    () => false,
-  );
+  const isInteractiveDesktop = useMediaQuery(INTERACTIVE_DESKTOP_QUERY);
+  const canRunAmbientAnimation = useMediaQuery(ANIMATED_MOBILE_SAFE_QUERY);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -56,7 +41,7 @@ export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
   const badgeChipRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
-    if (prefersReducedMotion) {
+    if (prefersReducedMotion || !canRunAmbientAnimation) {
       return;
     }
 
@@ -117,7 +102,7 @@ export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
     return () => {
       context.revert();
     };
-  }, [prefersReducedMotion]);
+  }, [canRunAmbientAnimation, prefersReducedMotion]);
 
   useEffect(() => {
     if (!isInteractiveDesktop || prefersReducedMotion) {

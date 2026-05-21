@@ -1,72 +1,104 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import {
+  ArrowRight,
+  CheckCircle2,
+  Loader2,
+  PhoneCall,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { CheckCircle2, XCircle, ArrowRight, Loader2, PhoneCall } from "lucide-react";
 import { currentSite } from "@/config/site";
+import { useLanguage } from "@/hooks/useLanguage";
+import { courses } from "@/data/courses";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
   const courseId = searchParams.get("course_id");
   const errorMsg = searchParams.get("error");
+  const { messages } = useLanguage();
 
   const [verifying, setVerifying] = useState(true);
   const [verifiedSuccess, setVerifiedSuccess] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
+  const hasTrackedVerifiedPaymentRef = useRef(false);
 
   useEffect(() => {
     async function verifyEnrollment() {
       if (status === "error") {
         setVerifiedSuccess(false);
-        setVerificationError(errorMsg || "Payment verification failed.");
+        setVerificationError(
+          errorMsg || messages.paymentSuccess.paymentVerificationError
+        );
         setVerifying(false);
         return;
       }
 
       if (!courseId) {
         setVerifiedSuccess(false);
-        setVerificationError("No Course/Program ID was provided for verification.");
+        setVerificationError(messages.paymentSuccess.noCourseId);
         setVerifying(false);
         return;
       }
 
       try {
-        const res = await fetch(`/api/enrollments/status?courseId=${encodeURIComponent(courseId)}`);
-        if (res.ok) {
-          const data = await res.json();
+        const response = await fetch(
+          `/api/enrollments/status?courseId=${encodeURIComponent(courseId)}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+
           if (data.enrolled) {
+            const matchingCourse = courses.find((course) => course.id === courseId);
+
+            if (!hasTrackedVerifiedPaymentRef.current) {
+              hasTrackedVerifiedPaymentRef.current = true;
+              captureEvent("payment_verified", {
+                amount: matchingCourse?.price,
+                program_slug: matchingCourse?.slug ?? courseId,
+                status: "verified",
+              });
+            }
+
             setVerifiedSuccess(true);
           } else {
             setVerifiedSuccess(false);
-            setVerificationError("We could not find an active database enrollment for this program. Your payment might still be processing or failed.");
+            setVerificationError(messages.paymentSuccess.activeEnrollmentMissing);
           }
         } else {
-          const errData = await res.json().catch(() => ({}));
+          const payload = await response.json().catch(() => ({}));
           setVerifiedSuccess(false);
-          setVerificationError(errData.error || "Failed to communicate with our enrollment confirmation servers.");
+          setVerificationError(
+            payload.error || messages.paymentSuccess.communicationFailed
+          );
         }
-      } catch (err) {
-        console.error("Error confirming enrollment on success page:", err);
+      } catch (error) {
+        console.error("Error confirming enrollment on success page:", error);
         setVerifiedSuccess(false);
-        setVerificationError("A network error occurred while verifying your enrollment status.");
+        setVerificationError(messages.paymentSuccess.networkVerificationError);
       } finally {
         setVerifying(false);
       }
     }
 
-    verifyEnrollment();
-  }, [status, courseId, errorMsg]);
+    void verifyEnrollment();
+  }, [courseId, errorMsg, messages, status]);
 
   if (verifying) {
     return (
-      <div className="text-center max-w-md mx-auto p-8 border border-[#D6C7B2] rounded-2xl bg-[#FFFDF9] shadow-lg flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="h-10 w-10 text-[#800020] animate-spin" />
-        <h2 className="text-lg font-bold text-[#2E1E1E] font-serif">Verifying Enrollment Status...</h2>
-        <p className="text-xs text-[#5C4D4D] leading-relaxed">
-          Please wait while we confirm your payment signatures and activate your academic profile in our secure database.
+      <div className="mx-auto flex max-w-md flex-col items-center justify-center space-y-4 rounded-2xl border border-[#D6C7B2] bg-[#FFFDF9] p-8 text-center shadow-lg">
+        <Loader2 className="h-10 w-10 animate-spin text-[#800020]" />
+        <h2 className="font-serif text-lg font-bold text-[#2E1E1E]">
+          {messages.paymentSuccess.verifyingTitle}
+        </h2>
+        <p className="text-xs leading-relaxed text-[#5C4D4D]">
+          {messages.paymentSuccess.verifyingDescription}
         </p>
       </div>
     );
@@ -74,46 +106,61 @@ function SuccessContent() {
 
   if (!verifiedSuccess) {
     return (
-      <div className="text-center max-w-md mx-auto p-8 border border-[#D6C7B2] rounded-2xl bg-[#FFFDF9] shadow-lg space-y-6">
+      <div className="mx-auto max-w-md space-y-6 rounded-2xl border border-[#D6C7B2] bg-[#FFFDF9] p-8 text-center shadow-lg">
         <div className="flex justify-center">
-          <div className="h-16 w-16 rounded-full bg-red-50 flex items-center justify-center border border-red-200">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-red-200 bg-red-50">
             <XCircle className="h-10 w-10 text-red-600" />
           </div>
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-2xl font-serif font-extrabold text-[#2E1E1E]">Payment Verification Failed</h1>
-          <p className="text-xs text-[#5C4D4D] leading-relaxed">
-            Although the payment window completed, we could not confirm a valid database enrollment for this program.
+          <h1 className="font-serif text-2xl font-extrabold text-[#2E1E1E]">
+            {messages.paymentSuccess.paymentVerificationFailed}
+          </h1>
+          <p className="text-xs leading-relaxed text-[#5C4D4D]">
+            {messages.paymentSuccess.paymentVerificationFailedDescription}
           </p>
         </div>
 
-        {verificationError && (
-          <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-left">
-            <span className="text-[10px] font-bold text-red-800 uppercase block mb-1">Details</span>
-            <span className="text-xxs font-medium text-red-700 block break-words leading-relaxed">{verificationError}</span>
+        {verificationError ? (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-left">
+            <span className="mb-1 block text-[10px] font-bold uppercase text-red-800">
+              {messages.paymentSuccess.detailsLabel}
+            </span>
+            <span className="block break-words text-xxs font-medium leading-relaxed text-red-700">
+              {verificationError}
+            </span>
           </div>
-        )}
+        ) : null}
 
-        <div className="p-4 bg-[#FAF6EE] border border-dashed border-[#D6C7B2] rounded-xl flex items-start gap-3 text-left">
-          <PhoneCall className="h-5 w-5 text-[#C35237] mt-0.5 flex-shrink-0" />
+        <div className="flex items-start gap-3 rounded-xl border border-dashed border-[#D6C7B2] bg-[#FAF6EE] p-4 text-left">
+          <PhoneCall className="mt-0.5 h-5 w-5 shrink-0 text-[#C35237]" />
           <div>
-            <h4 className="font-bold text-xs text-[#800020]">Helpline Support</h4>
-            <p className="text-[10px] text-[#5C4D4D] mt-0.5 leading-relaxed">
-              If your bank account was debited, do not worry. Call admissions at <strong>{currentSite.contact.phone}</strong> or email <strong>{currentSite.contact.email}</strong> to manually verify your transaction.
+            <h4 className="text-xs font-bold text-[#800020]">
+              {messages.paymentSuccess.helplineTitle}
+            </h4>
+            <p className="mt-0.5 text-[10px] leading-relaxed text-[#5C4D4D]">
+              {messages.paymentSuccess.helplinePrefix}{" "}
+              <strong>{currentSite.contact.phone}</strong>{" "}
+              {messages.paymentSuccess.helplineMiddle}{" "}
+              <strong>{currentSite.contact.email}</strong>{" "}
+              {messages.paymentSuccess.helplineSuffix}
             </p>
           </div>
         </div>
 
         <div className="space-y-2 pt-2">
-          <Link href="/dashboard" className="w-full block">
-            <Button className="w-full text-xs h-10 bg-[#800020] hover:bg-[#6B1D2F] text-[#FAF6EE] font-bold rounded-lg shadow-sm">
-              Go to Dashboard
+          <Link href="/dashboard" className="block w-full">
+            <Button className="h-10 w-full rounded-lg bg-[#800020] text-xs font-bold text-[#FAF6EE] shadow-sm hover:bg-[#6B1D2F]">
+              {messages.common.goToDashboard}
             </Button>
           </Link>
-          <Link href="/programs" className="w-full block">
-            <Button variant="outline" className="w-full text-xs h-10 border-[#800020] text-[#800020] hover:bg-[#FAF0D9]/50 font-bold rounded-lg">
-              Browse Programs
+          <Link href="/programs" className="block w-full">
+            <Button
+              variant="outline"
+              className="h-10 w-full rounded-lg border-[#800020] text-xs font-bold text-[#800020] hover:bg-[#FAF0D9]/50"
+            >
+              {messages.common.browsePrograms}
             </Button>
           </Link>
         </div>
@@ -122,41 +169,50 @@ function SuccessContent() {
   }
 
   return (
-    <div className="text-center max-w-md mx-auto p-8 border border-[#D6C7B2] rounded-2xl bg-[#FFFDF9] shadow-lg space-y-6">
+    <div className="mx-auto max-w-md space-y-6 rounded-2xl border border-[#D6C7B2] bg-[#FFFDF9] p-8 text-center shadow-lg">
       <div className="flex justify-center">
-        <div className="h-16 w-16 rounded-full bg-green-50 flex items-center justify-center border border-green-200">
-          <CheckCircle2 className="h-10 w-10 text-green-600 animate-bounce" />
+        <div className="flex h-16 w-16 items-center justify-center rounded-full border border-green-200 bg-green-50">
+          <CheckCircle2 className="h-10 w-10 animate-bounce text-green-600" />
         </div>
       </div>
 
       <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-serif font-extrabold text-[#2E1E1E]">Payment Successful!</h1>
-        <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-green-700 bg-green-50 border border-green-200 px-3 py-1 rounded">
-          Verified Enrollment Activated
+        <h1 className="font-serif text-2xl font-extrabold text-[#2E1E1E] sm:text-3xl">
+          {messages.paymentSuccess.paymentSuccessful}
+        </h1>
+        <span className="inline-block rounded border border-green-200 bg-green-50 px-3 py-1 text-[9px] font-bold uppercase tracking-wider text-green-700">
+          {messages.paymentSuccess.successBadge}
         </span>
       </div>
 
-      <p className="text-xs text-[#5C4D4D] leading-relaxed">
-        Thank you for enrolling in Nalanda Foundation! Your payment signature was successfully authenticated. Your student profile now has verified active access to this program track.
+      <p className="text-xs leading-relaxed text-[#5C4D4D]">
+        {messages.paymentSuccess.successDescription}
       </p>
 
-      <div className="p-4 bg-[#FAF0D9]/50 border border-[#D97706]/20 rounded-xl text-left">
-        <h4 className="font-bold text-xs text-[#800020] font-serif">What to do next?</h4>
-        <p className="text-[10px] text-[#5C4D4D] mt-1 leading-relaxed">
-          1. Go to your <strong>Dashboard</strong> to join the official WhatsApp student announcement group.<br />
-          2. Course study contents and task guides will activate as final admissions conclude.
+      <div className="rounded-xl border border-[#D97706]/20 bg-[#FAF0D9]/50 p-4 text-left">
+        <h4 className="font-serif text-xs font-bold text-[#800020]">
+          {messages.paymentSuccess.nextStepsTitle}
+        </h4>
+        <p className="mt-1 text-[10px] leading-relaxed text-[#5C4D4D]">
+          1. {messages.paymentSuccess.nextStepOne}
+          <br />
+          2. {messages.paymentSuccess.nextStepTwo}
         </p>
       </div>
 
       <div className="space-y-2 pt-2">
-        <Link href="/dashboard" className="w-full block">
-          <Button className="w-full text-xs h-10 bg-[#800020] hover:bg-[#6B1D2F] text-[#FAF6EE] font-bold rounded-lg shadow-sm flex items-center justify-center gap-1.5">
-            Go to Student Dashboard <ArrowRight className="h-3.5 w-3.5" />
+        <Link href="/dashboard" className="block w-full">
+          <Button className="flex h-10 w-full items-center justify-center gap-1.5 rounded-lg bg-[#800020] text-xs font-bold text-[#FAF6EE] shadow-sm hover:bg-[#6B1D2F]">
+            {messages.common.goToStudentDashboard}
+            <ArrowRight className="h-3.5 w-3.5" />
           </Button>
         </Link>
-        <Link href="/programs" className="w-full block">
-          <Button variant="outline" className="w-full text-xs h-10 border-[#800020] text-[#800020] hover:bg-[#FAF0D9]/50 font-bold rounded-lg">
-            Explore Other Streams
+        <Link href="/programs" className="block w-full">
+          <Button
+            variant="outline"
+            className="h-10 w-full rounded-lg border-[#800020] text-xs font-bold text-[#800020] hover:bg-[#FAF0D9]/50"
+          >
+            {messages.common.exploreOtherStreams}
           </Button>
         </Link>
       </div>
@@ -165,14 +221,20 @@ function SuccessContent() {
 }
 
 export default function PaymentSuccessPage() {
+  const { messages } = useLanguage();
+
   return (
-    <div className="min-h-[80vh] bg-[#FAF6EE] py-16 px-4 flex items-center justify-center">
-      <Suspense fallback={
-        <div className="text-center max-w-md mx-auto p-8 border border-[#D6C7B2] rounded-2xl bg-[#FFFDF9] shadow-lg flex flex-col items-center justify-center space-y-4">
-          <Loader2 className="h-10 w-10 text-[#800020] animate-spin" />
-          <h2 className="text-lg font-bold text-[#2E1E1E] font-serif">Loading...</h2>
-        </div>
-      }>
+    <div className="flex min-h-[80vh] items-center justify-center bg-[#FAF6EE] px-4 py-16">
+      <Suspense
+        fallback={
+          <div className="mx-auto flex max-w-md flex-col items-center justify-center space-y-4 rounded-2xl border border-[#D6C7B2] bg-[#FFFDF9] p-8 text-center shadow-lg">
+            <Loader2 className="h-10 w-10 animate-spin text-[#800020]" />
+            <h2 className="font-serif text-lg font-bold text-[#2E1E1E]">
+              {messages.common.loading}
+            </h2>
+          </div>
+        }
+      >
         <SuccessContent />
       </Suspense>
     </div>

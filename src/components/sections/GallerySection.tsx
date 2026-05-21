@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { galleryItems, type GalleryItem } from "@/data/gallery";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const DEFAULT_ACTIVE_INDEX = Math.floor((galleryItems.length - 1) / 2);
 
@@ -43,6 +44,7 @@ function GalleryCard({
 }
 
 export function GallerySection() {
+  const { messages } = useLanguage();
   const prefersReducedMotion = useReducedMotion();
   const [activeIndex, setActiveIndex] = useState(DEFAULT_ACTIVE_INDEX);
 
@@ -57,14 +59,13 @@ export function GallerySection() {
       <div className="mx-auto max-w-7xl space-y-10">
         <div className="mx-auto max-w-3xl space-y-4 text-center">
           <span className="inline-flex items-center rounded-full border border-[var(--primary)]/12 bg-[var(--card)] px-4 py-1.5 text-[10px] font-bold uppercase tracking-[0.24em] text-[var(--primary)] shadow-sm">
-            Learning Gallery
+            {messages.gallery.badge}
           </span>
           <h2 className="font-serif text-3xl font-extrabold text-[var(--foreground)] sm:text-4xl">
-            Explore Nalanda Cohorts In Action
+            {messages.gallery.heading}
           </h2>
           <p className="text-sm leading-7 text-[var(--muted-foreground)] sm:text-base">
-            A glimpse into workshops, mentorship discussions, student learning
-            cohorts, certification moments, and practical projects.
+            {messages.gallery.subtitle}
           </p>
         </div>
 

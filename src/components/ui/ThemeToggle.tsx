@@ -1,44 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Sun, Moon } from "lucide-react";
+import { captureEvent } from "@/lib/analytics/posthog";
+
+type ThemeMode = "light" | "dark";
+const THEME_CHANGE_EVENT = "nalanda-theme-change";
+
+function getThemeFromDocument(): ThemeMode {
+  if (typeof document === "undefined") {
+    return "light";
+  }
+
+  return document.documentElement.classList.contains("dark") ? "dark" : "light";
+}
+
+function applyTheme(nextTheme: ThemeMode) {
+  document.documentElement.classList.toggle("dark", nextTheme === "dark");
+  document.documentElement.style.colorScheme = nextTheme;
+  localStorage.setItem("theme", nextTheme);
+  window.dispatchEvent(new Event(THEME_CHANGE_EVENT));
+}
+
+function subscribeToTheme(onStoreChange: () => void) {
+  const handleStorage = (event: StorageEvent) => {
+    if (!event.key || event.key === "theme") {
+      onStoreChange();
+    }
+  };
+
+  window.addEventListener(THEME_CHANGE_EVENT, onStoreChange);
+  window.addEventListener("storage", handleStorage);
+
+  return () => {
+    window.removeEventListener(THEME_CHANGE_EVENT, onStoreChange);
+    window.removeEventListener("storage", handleStorage);
+  };
+}
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-
-  useEffect(() => {
-    // Check local storage or document class on mount
-    try {
-      const savedTheme = localStorage.getItem("theme");
-      const holdsDarkClass = document.documentElement.classList.contains("dark");
-      const initialTheme = (savedTheme === "dark" || (!savedTheme && holdsDarkClass)) ? "dark" : "light";
-
-      if (initialTheme === "dark") {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-
-      // Defer the state update to avoid lint warnings about setState in effect body
-      setTimeout(() => {
-        setTheme(initialTheme);
-      }, 0);
-    } catch (e) {
-      console.error("Theme selection failed", e);
-    }
-  }, []);
+  const theme = useSyncExternalStore(
+    subscribeToTheme,
+    getThemeFromDocument,
+    () => "light",
+  );
 
   const toggleTheme = () => {
     try {
-      if (theme === "light") {
-        setTheme("dark");
-        document.documentElement.classList.add("dark");
-        localStorage.setItem("theme", "dark");
-      } else {
-        setTheme("light");
-        document.documentElement.classList.remove("dark");
-        localStorage.setItem("theme", "light");
-      }
+      const nextTheme = theme === "light" ? "dark" : "light";
+      applyTheme(nextTheme);
+      captureEvent("theme_toggled", { theme: nextTheme });
     } catch (e) {
       console.error("Failed to update theme", e);
     }
@@ -48,8 +59,9 @@ export function ThemeToggle() {
     <button
       onClick={toggleTheme}
       type="button"
-      className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#D6C7B2]/40 bg-[#FFFDF9] text-[#5C4D4D] transition-all hover:bg-[#FAF0D9]/50 hover:text-[#800020] dark:bg-[#221113] dark:border-[#4D262B] dark:text-[#D3C4C6] dark:hover:bg-[#2E1517] dark:hover:text-[#EAB308] shadow-sm relative group cursor-pointer"
+      className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#D6C7B2]/40 bg-[#FFFDF9] text-[#5C4D4D] transition-all hover:bg-[#FAF0D9]/50 hover:text-[#800020] dark:border-[#4D262B] dark:bg-[#221113] dark:text-[#D3C4C6] dark:hover:bg-[#2E1517] dark:hover:text-[#EAB308] shadow-sm relative group cursor-pointer"
       aria-label="Toggle Theme"
+      aria-pressed={theme === "dark"}
     >
       {theme === "light" ? (
         <Moon className="h-4.5 w-4.5 transition-transform group-hover:rotate-12" />

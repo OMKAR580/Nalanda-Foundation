@@ -7,19 +7,37 @@ import { UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/Button";
 import { useRegistrationStatus } from "@/components/auth/RegistrationStatusProvider";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/hooks/useLanguage";
+import { captureEvent } from "@/lib/analytics/posthog";
 
 export function Navbar() {
-  const { status } = useRegistrationStatus();
+  const { hasLoadedStatus, isAuthLoaded, isSignedIn, status } = useRegistrationStatus();
+  const { messages } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const hasResolvedSignedInState = isAuthLoaded && isSignedIn;
   const isRegisteredUser = status.authenticated && status.registered;
-  const primarySignedInHref = isRegisteredUser ? "/dashboard" : "/registration";
-  const primarySignedInLabel = isRegisteredUser
-    ? "Dashboard"
-    : "Complete Registration";
+  const isRegistrationStatusPending = hasResolvedSignedInState && !hasLoadedStatus;
+  const primarySignedInHref =
+    isRegisteredUser || isRegistrationStatusPending ? "/dashboard" : "/registration";
+  const primarySignedInLabel =
+    isRegisteredUser || isRegistrationStatusPending
+      ? messages.common.dashboard
+      : messages.common.completeRegistration;
+  const shouldTrackRegistrationCta =
+    hasResolvedSignedInState && !isRegisteredUser && !isRegistrationStatusPending;
+  const navLinks = [
+    { href: "/", label: messages.nav.home },
+    { href: "/#about", label: messages.nav.about },
+    { href: "/programs", label: messages.nav.programs },
+    { href: "/#services", label: messages.nav.services },
+    { href: "/#certification", label: messages.nav.certification },
+    { href: "/#contact", label: messages.nav.contact },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -61,48 +79,41 @@ export function Navbar() {
               {currentSite.name}
             </span>
             <span className="text-[9px] font-bold text-[var(--secondary)] tracking-wider uppercase leading-none mt-0.5">
-              Learning Portal
+              {messages.brand.learningPortal}
             </span>
           </div>
         </Link>
 
         {/* Navigation Links */}
         <nav className="hidden lg:flex items-center gap-6 text-xs md:text-sm font-bold text-[var(--muted-foreground)]">
-          <Link href="/" className="transition-colors hover:text-[var(--primary)] relative group py-2">
-            Home
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
-          </Link>
-          <Link href="/#about" className="transition-colors hover:text-[var(--primary)] relative group py-2">
-            About Us
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
-          </Link>
-          <Link href="/programs" className="transition-colors hover:text-[var(--primary)] relative group py-2">
-            Programs & Internships
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
-          </Link>
-          <Link href="/#services" className="transition-colors hover:text-[var(--primary)] relative group py-2">
-            Services
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
-          </Link>
-          <Link href="/#certification" className="transition-colors hover:text-[var(--primary)] relative group py-2">
-            Certification
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
-          </Link>
-          <Link href="/#contact" className="transition-colors hover:text-[var(--primary)] relative group py-2">
-            Contact
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
-          </Link>
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href} className="transition-colors hover:text-[var(--primary)] relative group py-2">
+              {link.label}
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[var(--primary)] transition-all group-hover:w-full"></span>
+            </Link>
+          ))}
         </nav>
 
         {/* CTA, Theme Toggle & Clerk Profile */}
         <div className="flex items-center gap-3">
+          <LanguageToggle />
           <ThemeToggle />
 
           <div className="hidden sm:flex items-center gap-3">
-            {status.authenticated ? (
+            {hasResolvedSignedInState ? (
               <>
                 <Link href={primarySignedInHref}>
-                  <Button variant="ghost" className="text-xs h-9 font-bold text-[var(--primary)] hover:bg-[var(--muted)]/30 border border-transparent hover:border-[var(--border)]/60 rounded-xl transition-all">
+                  <Button
+                    variant="ghost"
+                    className="text-xs h-9 font-bold text-[var(--primary)] hover:bg-[var(--muted)]/30 border border-transparent hover:border-[var(--border)]/60 rounded-xl transition-all"
+                    onClick={() => {
+                      if (shouldTrackRegistrationCta) {
+                        captureEvent("registration_cta_clicked", {
+                          source: "navbar",
+                        });
+                      }
+                    }}
+                  >
                     {primarySignedInLabel}
                   </Button>
                 </Link>
@@ -118,12 +129,12 @@ export function Navbar() {
               <>
                 <Link href="/sign-in">
                   <Button variant="ghost" className="text-xs h-9 font-bold text-[var(--muted-foreground)] hover:bg-[var(--muted)]/30 rounded-xl">
-                    Sign In
+                    {messages.common.signIn}
                   </Button>
                 </Link>
                 <Link href="/sign-up">
                   <Button className="text-xs h-9 bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] font-bold px-5 rounded-xl shadow-md transition-all hover:scale-[1.03] active:scale-[0.98]">
-                    Register
+                    {messages.common.register}
                   </Button>
                 </Link>
               </>
@@ -134,7 +145,7 @@ export function Navbar() {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="flex lg:hidden h-9 w-9 items-center justify-center rounded-lg border border-[var(--border)]/40 bg-[var(--card)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]/20 transition-all cursor-pointer"
-            aria-label="Toggle Mobile Menu"
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -145,59 +156,39 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="lg:hidden border-t border-[var(--border)]/30 bg-[var(--card)] p-4 space-y-4 animate-reveal">
           <nav className="flex flex-col gap-3 text-xs font-bold text-[var(--muted-foreground)]">
-            <Link
-              href="/"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2 border-b border-[var(--border)]/20 transition-colors hover:text-[var(--primary)]"
-            >
-              Home
-            </Link>
-            <Link
-              href="/#about"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2 border-b border-[var(--border)]/20 transition-colors hover:text-[var(--primary)]"
-            >
-              About Us
-            </Link>
-            <Link
-              href="/programs"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2 border-b border-[var(--border)]/20 transition-colors hover:text-[var(--primary)]"
-            >
-              Programs & Internships
-            </Link>
-            <Link
-              href="/#services"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2 border-b border-[var(--border)]/20 transition-colors hover:text-[var(--primary)]"
-            >
-              Services
-            </Link>
-            <Link
-              href="/#certification"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2 border-b border-[var(--border)]/20 transition-colors hover:text-[var(--primary)]"
-            >
-              Certification
-            </Link>
-            <Link
-              href="/#contact"
-              onClick={() => setMobileMenuOpen(false)}
-              className="py-2 transition-colors hover:text-[var(--primary)]"
-            >
-              Contact
-            </Link>
+            {navLinks.map((link, index) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "py-2 transition-colors hover:text-[var(--primary)]",
+                  index < navLinks.length - 1 && "border-b border-[var(--border)]/20"
+                )}
+              >
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
           <div className="flex flex-col gap-2 pt-2 border-t border-[var(--border)]/20">
-            {status.authenticated ? (
+            {hasResolvedSignedInState ? (
               <div className="flex items-center justify-between">
                 <Link
                   href={primarySignedInHref}
                   onClick={() => setMobileMenuOpen(false)}
                   className="w-full"
                 >
-                  <Button className="w-full text-xs h-9 bg-[var(--primary)] text-[var(--primary-foreground)] font-bold rounded-xl shadow-sm">
+                  <Button
+                    className="w-full text-xs h-9 bg-[var(--primary)] text-[var(--primary-foreground)] font-bold rounded-xl shadow-sm"
+                    onClick={() => {
+                      if (shouldTrackRegistrationCta) {
+                        captureEvent("registration_cta_clicked", {
+                          source: "navbar",
+                        });
+                      }
+                    }}
+                  >
                     {primarySignedInLabel}
                   </Button>
                 </Link>
@@ -218,7 +209,7 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Button variant="outline" className="w-full text-xs h-9 font-bold border-[var(--border)] text-[var(--muted-foreground)] rounded-xl">
-                    Sign In
+                    {messages.common.signIn}
                   </Button>
                 </Link>
                 <Link
@@ -226,7 +217,7 @@ export function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Button className="w-full text-xs h-9 bg-[var(--primary)] hover:bg-[var(--secondary)] text-[var(--primary-foreground)] font-bold rounded-xl shadow-sm">
-                    Register
+                    {messages.common.register}
                   </Button>
                 </Link>
               </div>

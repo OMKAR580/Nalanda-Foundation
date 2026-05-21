@@ -1,99 +1,104 @@
 "use client";
 
 import Link from "next/link";
+import { Award, Clock, Globe2 } from "lucide-react";
 import { courses } from "@/data/courses";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Award, Clock, Globe2 } from "lucide-react";
 import { CourseImage } from "@/components/ui/CourseImage";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function ProgramsPage() {
+  const { messages } = useLanguage();
+
   return (
-    <div className="min-h-screen bg-[#FAF6EE] text-[#2E1E1E] py-16 px-4 sm:px-6 lg:px-8 font-sans">
-      <div className="max-w-7xl mx-auto space-y-12">
-        {/* Header Section */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <span className="inline-block text-xs font-bold uppercase tracking-wider text-[#FAF6EE] bg-[#800020] px-4 py-1 rounded-full shadow-sm">
-            Nalanda Foundation Programs & Certifications
+    <div className="min-h-screen bg-[#FAF6EE] px-4 py-16 font-sans text-[#2E1E1E] sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-12">
+        <div className="mx-auto max-w-3xl space-y-4 text-center">
+          <span className="inline-block rounded-full bg-[#800020] px-4 py-1 text-xs font-bold uppercase tracking-wider text-[#FAF6EE] shadow-sm">
+            {messages.programsPage.badge}
           </span>
-          <h1 className="text-4xl sm:text-6xl font-extrabold text-[#2E1E1E] tracking-tight font-serif">
-            Internship Streams & Programs
+          <h1 className="font-serif text-4xl font-extrabold tracking-tight text-[#2E1E1E] sm:text-6xl">
+            {messages.programsPage.heading}
           </h1>
-          <p className="text-sm sm:text-base text-[#5C4D4D] leading-relaxed">
-            Revive the academic standard of India&apos;s golden heritage. Select from our 12 premium multidisciplinary training paths. Each curriculum includes verified certifications, hands-on projects, and real-time mentor guidance.
+          <p className="text-sm leading-relaxed text-[#5C4D4D] sm:text-base">
+            {messages.programsPage.subtitle}
           </p>
         </div>
 
-        {/* Highlight Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {courses.map((program) => (
             <Card
               key={program.id}
-              className="flex flex-col border border-[#D6C7B2] bg-[#FFFDF9] hover:border-[#800020] hover:shadow-xl hover:-translate-y-1 transition-all duration-300 rounded-2xl overflow-hidden"
+              className="flex flex-col overflow-hidden rounded-2xl border border-[#D6C7B2] bg-[#FFFDF9] transition-all duration-300 hover:-translate-y-1 hover:border-[#800020] hover:shadow-xl"
             >
-              {/* Program Cover Image */}
-              <div className="h-44 w-full border-b border-[#D6C7B2]/40 relative overflow-hidden">
+              <div className="relative h-44 w-full overflow-hidden border-b border-[#D6C7B2]/40">
                 <CourseImage
                   src={program.image}
                   alt={program.title}
                   category={program.category}
                   fill
                   priority={program.id === "program-1" || program.id === "program-2"}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
                 />
-                <div className="absolute top-3 left-3 bg-[#800020] text-[#FAF6EE] text-[9px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wider shadow-sm z-10">
+                <div className="absolute left-3 top-3 z-10 rounded-md bg-[#800020] px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider text-[#FAF6EE] shadow-sm">
                   {program.category}
                 </div>
               </div>
 
-              {/* Card Title Header */}
               <CardHeader className="p-6 pb-2">
-                <CardTitle className="text-lg sm:text-xl font-bold font-serif text-[#2E1E1E] line-clamp-1">
+                <CardTitle className="line-clamp-1 font-serif text-lg font-bold text-[#2E1E1E] sm:text-xl">
                   {program.title}
                 </CardTitle>
               </CardHeader>
 
-              {/* Card Details Content */}
-              <CardContent className="px-6 py-2 flex-1 space-y-4">
-                <p className="text-xs text-[#5C4D4D] line-clamp-2.5 leading-relaxed">
+              <CardContent className="flex-1 space-y-4 px-6 py-2">
+                <p className="line-clamp-2.5 text-xs leading-relaxed text-[#5C4D4D]">
                   {program.description}
                 </p>
 
-                {/* Technical specifications */}
-                <div className="grid grid-cols-2 gap-2 text-[10px] text-[#5C4D4D] border-t border-[#D6C7B2]/30 pt-3.5">
+                <div className="grid grid-cols-2 gap-2 border-t border-[#D6C7B2]/30 pt-3.5 text-[10px] text-[#5C4D4D]">
                   <div className="flex items-center gap-1.5 font-semibold">
                     <Clock className="h-3.5 w-3.5 text-[#C35237]" />
                     <span>{program.duration}</span>
                   </div>
                   <div className="flex items-center gap-1.5 font-semibold">
                     <Globe2 className="h-3.5 w-3.5 text-[#C35237]" />
-                    <span>Flexible Mode</span>
+                    <span>{messages.programsPage.flexibleMode}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-semibold col-span-2">
+                  <div className="col-span-2 flex items-center gap-1.5 font-semibold">
                     <Award className="h-3.5 w-3.5 text-[#D97706]" />
-                    <span>Verified Internship Certificate</span>
+                    <span>{messages.programsPage.certificate}</span>
                   </div>
                 </div>
 
-                {/* Displaying price crossed out */}
                 <div className="flex items-baseline gap-2.5 pt-2">
-                  <span className="text-xl font-extrabold text-[#800020]">₹{program.price}</span>
-                  <span className="text-xs text-[#5C4D4D] line-through font-semibold">₹{program.originalPrice}</span>
-                  <span className="text-[9px] font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded uppercase">
-                    Save 40%
+                  <span className="text-xl font-extrabold text-[#800020]">
+                    {"\u20B9"}
+                    {program.price}
+                  </span>
+                  <span className="text-xs font-semibold text-[#5C4D4D] line-through">
+                    {"\u20B9"}
+                    {program.originalPrice}
+                  </span>
+                  <span className="rounded border border-green-200 bg-green-50 px-2 py-0.5 text-[9px] font-bold uppercase text-green-700">
+                    {messages.common.saveFortyPercent}
                   </span>
                 </div>
               </CardContent>
 
-              {/* CTA Button Actions */}
-              <CardFooter className="p-6 pt-2 gap-3">
+              <CardFooter className="gap-3 p-6 pt-2">
                 <Link href={`/programs/${program.slug}`} className="flex-1">
-                  <Button variant="outline" className="w-full text-xs h-10 border-[#800020] text-[#800020] hover:bg-[#FAF0D9] font-bold rounded-lg transition-colors">
-                    View Details
+                  <Button
+                    variant="outline"
+                    className="h-10 w-full rounded-lg border-[#800020] text-xs font-bold text-[#800020] transition-colors hover:bg-[#FAF0D9]"
+                  >
+                    {messages.common.viewDetails}
                   </Button>
                 </Link>
                 <Link href={`/programs/${program.slug}`} className="flex-1">
-                  <Button className="w-full text-xs h-10 bg-[#800020] hover:bg-[#6B1D2F] text-[#FAF6EE] font-bold rounded-lg shadow-sm transition-colors">
-                    Enroll Now
+                  <Button className="h-10 w-full rounded-lg bg-[#800020] text-xs font-bold text-[#FAF6EE] shadow-sm transition-colors hover:bg-[#6B1D2F]">
+                    {messages.common.enrollNow}
                   </Button>
                 </Link>
               </CardFooter>

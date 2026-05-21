@@ -35,6 +35,10 @@ cp .env.example .env.local
 ```
 Fill in the required keys for Clerk, Supabase, and Razorpay.
 
+If you want PostHog analytics enabled, also add `NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN` and
+`NEXT_PUBLIC_POSTHOG_HOST` to `.env.local` and your Vercel environment variables, then
+redeploy. You can confirm incoming events in PostHog Activity.
+
 ### 3. Clerk Dashboard Configuration
 To ensure the authentication flow works correctly with the custom registration page:
 1. Go to your [Clerk Dashboard](https://dashboard.clerk.com).

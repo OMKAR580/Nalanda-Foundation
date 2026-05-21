@@ -6,11 +6,11 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
 import { useAuth } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
 import {
   type RegistrationStatusPayload,
   unauthenticatedRegistrationStatus,
@@ -18,7 +18,9 @@ import {
 
 interface RegistrationStatusContextValue {
   isAuthLoaded: boolean;
+  isSignedIn: boolean;
   isChecking: boolean;
+  hasLoadedStatus: boolean;
   registrationError: string | null;
   status: RegistrationStatusPayload;
   refreshRegistrationStatus: () => Promise<RegistrationStatusPayload | null>;
@@ -28,20 +30,23 @@ const RegistrationStatusContext = createContext<RegistrationStatusContextValue |
 
 export function RegistrationStatusProvider({ children }: { children: ReactNode }) {
   const { isLoaded, isSignedIn } = useAuth();
-  const pathname = usePathname();
+  const isAuthLoaded = Boolean(isLoaded);
+  const isAuthenticated = Boolean(isSignedIn);
   const [status, setStatus] = useState<RegistrationStatusPayload>(
     unauthenticatedRegistrationStatus
   );
   const [isChecking, setIsChecking] = useState(false);
+  const [hasLoadedStatus, setHasLoadedStatus] = useState(false);
   const [registrationError, setRegistrationError] = useState<string | null>(null);
+  const hasFetchedInitialStatusRef = useRef(false);
 
   const loadRegistrationStatus = useCallback(
     async (signal?: AbortSignal) => {
-      if (!isLoaded) {
+      if (!isAuthLoaded) {
         return null;
       }
 
-      if (!isSignedIn) {
+      if (!isAuthenticated) {
         return unauthenticatedRegistrationStatus;
       }
 
@@ -64,18 +69,20 @@ export function RegistrationStatusProvider({ children }: { children: ReactNode }
         registration: payload?.registration ?? null,
       } satisfies RegistrationStatusPayload;
     },
-    [isLoaded, isSignedIn]
+    [isAuthLoaded, isAuthenticated]
   );
 
   const refreshRegistrationStatus = useCallback(async () => {
-    if (!isLoaded) {
+    if (!isAuthLoaded) {
       return null;
     }
 
-    if (!isSignedIn) {
+    if (!isAuthenticated) {
       setStatus(unauthenticatedRegistrationStatus);
       setRegistrationError(null);
       setIsChecking(false);
+      setHasLoadedStatus(false);
+      hasFetchedInitialStatusRef.current = false;
       return unauthenticatedRegistrationStatus;
     }
 
@@ -90,6 +97,7 @@ export function RegistrationStatusProvider({ children }: { children: ReactNode }
 
       setStatus(nextStatus);
       setRegistrationError(null);
+      setHasLoadedStatus(true);
 
       return nextStatus;
     } catch (error) {
@@ -98,72 +106,93 @@ export function RegistrationStatusProvider({ children }: { children: ReactNode }
           ? error.message
           : "We could not load your registration status."
       );
+      setHasLoadedStatus(true);
       return null;
     } finally {
       setIsChecking(false);
     }
-  }, [isLoaded, isSignedIn, loadRegistrationStatus]);
+  }, [isAuthLoaded, isAuthenticated, loadRegistrationStatus]);
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn) {
+    if (!isAuthLoaded) {
       return;
     }
 
+    if (!isAuthenticated) {
+      hasFetchedInitialStatusRef.current = false;
+      queueMicrotask(() => {
+        setStatus(unauthenticatedRegistrationStatus);
+        setRegistrationError(null);
+        setIsChecking(false);
+        setHasLoadedStatus(false);
+      });
+      return;
+    }
+
+    if (hasFetchedInitialStatusRef.current) {
+      return;
+    }
+
+    hasFetchedInitialStatusRef.current = true;
     const abortController = new AbortController();
-    const timeoutId = window.setTimeout(() => {
-      setIsChecking(true);
+    setIsChecking(true);
 
-      void loadRegistrationStatus(abortController.signal)
-        .then((nextStatus) => {
-          if (!nextStatus || abortController.signal.aborted) {
-            return;
-          }
+    void loadRegistrationStatus(abortController.signal)
+      .then((nextStatus) => {
+        if (!nextStatus || abortController.signal.aborted) {
+          return;
+        }
 
-          setStatus(nextStatus);
-          setRegistrationError(null);
-        })
-        .catch((error: unknown) => {
-          if (
-            abortController.signal.aborted ||
-            (error instanceof Error && error.name === "AbortError")
-          ) {
-            return;
-          }
+        setStatus(nextStatus);
+        setRegistrationError(null);
+        setHasLoadedStatus(true);
+      })
+      .catch((error: unknown) => {
+        if (
+          abortController.signal.aborted ||
+          (error instanceof Error && error.name === "AbortError")
+        ) {
+          return;
+        }
 
-          setRegistrationError(
-            error instanceof Error
-              ? error.message
-              : "We could not load your registration status."
-          );
-        })
-        .finally(() => {
-          if (!abortController.signal.aborted) {
-            setIsChecking(false);
-          }
-        });
-    }, 0);
+        setRegistrationError(
+          error instanceof Error
+            ? error.message
+            : "We could not load your registration status."
+        );
+        setHasLoadedStatus(true);
+      })
+      .finally(() => {
+        if (!abortController.signal.aborted) {
+          setIsChecking(false);
+        }
+      });
 
     return () => {
       abortController.abort();
-      window.clearTimeout(timeoutId);
     };
-  }, [isLoaded, isSignedIn, loadRegistrationStatus, pathname]);
+  }, [isAuthLoaded, isAuthenticated, loadRegistrationStatus]);
 
-  const resolvedStatus = isSignedIn ? status : unauthenticatedRegistrationStatus;
-  const resolvedError = isSignedIn ? registrationError : null;
-  const resolvedIsChecking = isSignedIn ? isChecking : false;
+  const resolvedStatus = isAuthenticated ? status : unauthenticatedRegistrationStatus;
+  const resolvedError = isAuthenticated ? registrationError : null;
+  const resolvedIsChecking = isAuthenticated ? isChecking : false;
+  const resolvedHasLoadedStatus = isAuthenticated ? hasLoadedStatus : false;
 
   const value = useMemo<RegistrationStatusContextValue>(
     () => ({
-      isAuthLoaded: isLoaded,
+      isAuthLoaded,
+      isSignedIn: isAuthenticated,
       isChecking: resolvedIsChecking,
+      hasLoadedStatus: resolvedHasLoadedStatus,
       registrationError: resolvedError,
       status: resolvedStatus,
       refreshRegistrationStatus,
     }),
     [
-      isLoaded,
+      isAuthLoaded,
+      isAuthenticated,
       refreshRegistrationStatus,
+      resolvedHasLoadedStatus,
       resolvedError,
       resolvedIsChecking,
       resolvedStatus,

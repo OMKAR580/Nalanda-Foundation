@@ -13,6 +13,7 @@ interface CourseImageProps {
   width?: number;
   height?: number;
   priority?: boolean;
+  sizes?: string;
 }
 
 export function CourseImage({
@@ -24,19 +25,16 @@ export function CourseImage({
   width,
   height,
   priority = false,
+  sizes = "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw",
 }: CourseImageProps) {
   const fallback = getCourseFallbackImage(category);
-  const [prevSrc, setPrevSrc] = useState(src);
-  const [imgSrc, setImgSrc] = useState(src || fallback);
-
-  if (src !== prevSrc) {
-    setPrevSrc(src);
-    setImgSrc(src || fallback);
-  }
+  const resolvedSrc = src || fallback;
+  const [failedSource, setFailedSource] = useState<string | null>(null);
+  const imgSrc = failedSource === resolvedSrc ? fallback : resolvedSrc;
 
   const handleError = () => {
-    if (imgSrc !== fallback) {
-      setImgSrc(fallback);
+    if (resolvedSrc !== fallback) {
+      setFailedSource(resolvedSrc);
     }
   };
 
@@ -46,7 +44,7 @@ export function CourseImage({
         src={imgSrc}
         alt={alt}
         fill
-        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        sizes={sizes}
         className={`object-cover ${className}`}
         onError={handleError}
         priority={priority}
@@ -60,6 +58,7 @@ export function CourseImage({
       alt={alt}
       width={width || 400}
       height={height || 300}
+      sizes={sizes}
       className={`object-cover ${className}`}
       onError={handleError}
       priority={priority}

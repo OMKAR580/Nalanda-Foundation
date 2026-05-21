@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -15,6 +16,7 @@
 
 # next.js
 /.next/
+.next
 /out/
 
 # production
@@ -26,6 +28,7 @@
 
 # debug
 *.log
+logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -43,6 +46,7 @@ yarn-error.log*
 
 # build outputs
 dist
+.build-check
 
 # typescript
 *.tsbuildinfo
