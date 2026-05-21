@@ -108,11 +108,15 @@ export function HeroSection() {
     <section className="relative overflow-hidden border-b border-[var(--border)]/30 px-4 sm:px-6 lg:px-8 -mt-16 pt-16">
       <div
         aria-hidden="true"
-        className="heritage-pattern absolute inset-0 opacity-78"
+        className={process.env.NEXT_PUBLIC_SITE_VARIANT === "krishana" 
+          ? "absolute inset-0 bg-[linear-gradient(to_right,#cbd5e1_1px,transparent_1px),linear-gradient(to_bottom,#cbd5e1_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-35 dark:opacity-10" 
+          : "heritage-pattern absolute inset-0 opacity-78"}
       />
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top,_rgba(128,0,32,0.16),_transparent_68%)] dark:bg-[radial-gradient(circle_at_top,_rgba(195,82,55,0.18),_transparent_68%)]"
+        className={process.env.NEXT_PUBLIC_SITE_VARIANT === "krishana"
+          ? "absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.16),_transparent_68%)] dark:bg-[radial-gradient(circle_at_top,_rgba(34,211,238,0.18),_transparent_68%)]"
+          : "absolute inset-x-0 top-0 h-44 bg-[radial-gradient(circle_at_top,_rgba(128,0,32,0.16),_transparent_68%)] dark:bg-[radial-gradient(circle_at_top,_rgba(195,82,55,0.18),_transparent_68%)]"}
       />
       <div
         aria-hidden="true"
@@ -175,11 +179,15 @@ export function HeroSection() {
                 initial={enableEntryMotion ? { opacity: 0, y: -16 } : false}
                 animate={enableEntryMotion ? { opacity: 1, y: 0 } : undefined}
                 transition={{ duration: 0.8, ease: easeOut, delay: 0.08 }}
-                className="block font-serif text-[var(--foreground)]"
+                className={process.env.NEXT_PUBLIC_SITE_VARIANT === "krishana" 
+                  ? "block font-sans text-[var(--foreground)]" 
+                  : "block font-serif text-[var(--foreground)]"}
               >
                 {messages.hero.titlePrefix}
               </motion.span>
-              <span className="mt-2 block font-serif leading-[1.2] pb-2">
+              <span className={process.env.NEXT_PUBLIC_SITE_VARIANT === "krishana"
+                ? "mt-2 block font-sans leading-[1.2] pb-2"
+                : "mt-2 block font-serif leading-[1.2] pb-2"}>
                 <TypewriterHeadline
                   key={messages.hero.typewriterWords.join("|")}
                   words={messages.hero.typewriterWords}
@@ -198,7 +206,9 @@ export function HeroSection() {
             <Button
               asChild
               size="lg"
-              className="premium-hover-border group h-[54px] w-full rounded-2xl border border-white/15 bg-[linear-gradient(135deg,#670917_0%,#8C2036_45%,#D08E2F_100%)] px-7 text-sm font-bold text-[var(--primary-foreground)] shadow-[0_20px_42px_rgba(128,0,32,0.22)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(128,0,32,0.28)] sm:w-auto"
+              className={process.env.NEXT_PUBLIC_SITE_VARIANT === "krishana"
+                ? "premium-hover-border group h-[54px] w-full rounded-2xl border border-white/15 bg-[linear-gradient(135deg,#0EA5E9_0%,#10B981_50%,#22D3EE_100%)] px-7 text-sm font-bold text-[var(--primary-foreground)] shadow-[0_20px_42px_rgba(14,165,233,0.22)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(14,165,233,0.28)] sm:w-auto"
+                : "premium-hover-border group h-[54px] w-full rounded-2xl border border-white/15 bg-[linear-gradient(135deg,#670917_0%,#8C2036_45%,#D08E2F_100%)] px-7 text-sm font-bold text-[var(--primary-foreground)] shadow-[0_20px_42px_rgba(128,0,32,0.22)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_54px_rgba(128,0,32,0.28)] sm:w-auto"}
             >
               <Link href="/programs">
                 {messages.common.explorePrograms}

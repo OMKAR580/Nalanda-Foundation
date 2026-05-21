@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
@@ -74,6 +76,41 @@
     --card-foreground: #f8fafc;
     --radius: 0.75rem;
   }
+
+  /* Krishana Jan Uthan Sansthan Theme - Modern Tech & Social Upliftment */
+  .theme-krishana {
+    --primary: #0ea5e9; /* tech blue */
+    --primary-foreground: #f8fafc;
+    --secondary: #10b981; /* emerald green */
+    --secondary-foreground: #f8fafc;
+    --accent: #22d3ee; /* cyan */
+    --accent-foreground: #0f172a;
+    --background: #eaf6ff; /* soft blue background */
+    --foreground: #0f172a; /* dark text */
+    --muted: #d0e8ff;
+    --muted-foreground: #475569;
+    --border: #cbd5e1;
+    --card: #ffffff;
+    --card-foreground: #0f172a;
+    --radius: 0.75rem;
+  }
+
+  .theme-krishana.dark {
+    --primary: #0ea5e9;
+    --primary-foreground: #f8fafc;
+    --secondary: #10b981;
+    --secondary-foreground: #f8fafc;
+    --accent: #22d3ee;
+    --accent-foreground: #071a2c;
+    --background: #071a2c; /* deep navy */
+    --foreground: #f8fafc;
+    --muted: #0d233a;
+    --muted-foreground: #94a3b8;
+    --border: #1e293b;
+    --card: #0d233a;
+    --card-foreground: #f8fafc;
+    --radius: 0.75rem;
+  }
 }
 
 html {
@@ -101,6 +138,18 @@ body {
 .theme-nalanda.dark .glass-panel {
   background: rgba(34, 17, 19, 0.8);
   border: 1px solid rgba(195, 82, 55, 0.15);
+}
+
+.theme-krishana .glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(14, 165, 233, 0.15);
+  backdrop-filter: blur(12px);
+}
+
+.theme-krishana.dark .glass-panel {
+  background: rgba(13, 35, 58, 0.75);
+  border: 1px solid rgba(34, 211, 238, 0.15);
+  backdrop-filter: blur(12px);
 }
 
 /* Premium Glow Cards & Effects */
@@ -283,6 +332,83 @@ body {
 .theme-nalanda.dark .nav-glass {
   background: rgba(23, 10, 12, 0.85);
   backdrop-filter: blur(12px) saturate(120%);
+}
+
+.theme-krishana .nav-glass {
+  background: rgba(234, 246, 255, 0.8);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+}
+
+.theme-krishana.dark .nav-glass {
+  background: rgba(7, 26, 44, 0.85);
+  backdrop-filter: blur(12px) saturate(120%);
+  -webkit-backdrop-filter: blur(12px) saturate(120%);
+}
+
+.theme-krishana .hero-gradient-title {
+  background-image: linear-gradient(120deg, #0ea5e9 0%, #10b981 50%, #22d3ee 100%);
+}
+
+.theme-krishana.dark .hero-gradient-title {
+  background-image: linear-gradient(120deg, #38bdf8 0%, #34d399 50%, #67e8f9 100%);
+}
+
+.theme-krishana .hero-shimmer-active {
+  background-image: linear-gradient(
+    120deg,
+    #0ea5e9 0%,
+    #10b981 38%,
+    rgba(255, 255, 255, 0.95) 50%,
+    #10b981 62%,
+    #22d3ee 100%
+  );
+}
+
+.theme-krishana.dark .hero-shimmer-active {
+  background-image: linear-gradient(
+    120deg,
+    #38bdf8 0%,
+    #34d399 38%,
+    rgba(255, 255, 255, 0.95) 50%,
+    #34d399 62%,
+    #67e8f9 100%
+  );
+}
+
+.theme-krishana .hero-stage-border {
+  background: linear-gradient(140deg, rgba(14, 165, 233, 0.86), rgba(16, 185, 129, 0.78) 42%, rgba(34, 211, 238, 0.88));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 54px rgba(7, 26, 44, 0.14);
+}
+
+.theme-krishana.dark .hero-stage-border {
+  background: linear-gradient(140deg, rgba(34, 211, 238, 0.84), rgba(16, 185, 129, 0.72) 42%, rgba(14, 165, 233, 0.9));
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.08), 0 26px 60px rgba(0, 0, 0, 0.36);
+}
+
+.theme-krishana .hero-stage-glass {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.86), rgba(234, 246, 255, 0.7) 58%, rgba(208, 232, 255, 0.72));
+  backdrop-filter: blur(22px) saturate(132%);
+  -webkit-backdrop-filter: blur(22px) saturate(132%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.theme-krishana.dark .hero-stage-glass {
+  background: linear-gradient(165deg, rgba(13, 35, 58, 0.92), rgba(7, 26, 44, 0.94) 56%, rgba(15, 30, 48, 0.84));
+  border-color: rgba(34, 211, 238, 0.12);
+}
+
+@keyframes glow-pulse-cyan {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(34, 211, 238, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.5);
+  }
+}
+
+.glow-pulse-cyan {
+  animation: glow-pulse-cyan 3s infinite ease-in-out;
 }
 
 .theme-nalanda.dark .hero-gradient-title {

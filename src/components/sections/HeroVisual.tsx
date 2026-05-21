@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type LucideIcon } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import { gsap } from "gsap";
@@ -23,6 +23,7 @@ export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
   const prefersReducedMotion = useReducedMotion();
   const isInteractiveDesktop = useMediaQuery(INTERACTIVE_DESKTOP_QUERY);
   const canRunAmbientAnimation = useMediaQuery(ANIMATED_MOBILE_SAFE_QUERY);
+  const [imageError, setImageError] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -39,6 +40,8 @@ export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
   const shineRef = useRef<HTMLDivElement>(null);
   const badgeShellRefs = useRef<Array<HTMLDivElement | null>>([]);
   const badgeChipRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  const isKrishana = process.env.NEXT_PUBLIC_SITE_VARIANT === "krishana";
 
   useEffect(() => {
     if (prefersReducedMotion || !canRunAmbientAnimation) {
@@ -232,19 +235,34 @@ export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
       >
         <div
           ref={auraCoreRef}
-          className="absolute inset-0 rounded-full bg-[radial-gradient(circle,_rgba(128,0,32,0.30)_0%,_rgba(195,82,55,0.22)_28%,_rgba(217,119,6,0.18)_48%,_transparent_76%)] blur-[58px] dark:bg-[radial-gradient(circle,_rgba(195,82,55,0.30)_0%,_rgba(217,119,6,0.24)_35%,_rgba(128,0,32,0.18)_54%,_transparent_78%)]"
+          className={cn(
+            "absolute inset-0 rounded-full blur-[58px]",
+            isKrishana
+              ? "bg-[radial-gradient(circle,_rgba(14,165,233,0.30)_0%,_rgba(16,185,129,0.22)_28%,_rgba(34,211,238,0.18)_48%,_transparent_76%)] dark:bg-[radial-gradient(circle,_rgba(16,185,129,0.30)_0%,_rgba(34,211,238,0.24)_35%,_rgba(14,165,233,0.18)_54%,_transparent_78%)]"
+              : "absolute inset-0 rounded-full bg-[radial-gradient(circle,_rgba(128,0,32,0.30)_0%,_rgba(195,82,55,0.22)_28%,_rgba(217,119,6,0.18)_48%,_transparent_76%)] blur-[58px] dark:bg-[radial-gradient(circle,_rgba(195,82,55,0.30)_0%,_rgba(217,119,6,0.24)_35%,_rgba(128,0,32,0.18)_54%,_transparent_78%)]"
+          )}
         />
       </div>
 
       <div
         ref={primaryBlobRef}
         aria-hidden="true"
-        className="pointer-events-none absolute left-0 top-[14%] h-40 w-40 rounded-full bg-[radial-gradient(circle,_rgba(128,0,32,0.28),_transparent_72%)] blur-[34px]"
+        className={cn(
+          "pointer-events-none absolute left-0 top-[14%] h-40 w-40 rounded-full blur-[34px]",
+          isKrishana
+            ? "bg-[radial-gradient(circle,_rgba(14,165,233,0.28),_transparent_72%)]"
+            : "bg-[radial-gradient(circle,_rgba(128,0,32,0.28),_transparent_72%)]"
+        )}
       />
       <div
         ref={secondaryBlobRef}
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-[14%] right-[1%] h-44 w-44 rounded-full bg-[radial-gradient(circle,_rgba(217,119,6,0.24),_transparent_72%)] blur-[38px]"
+        className={cn(
+          "pointer-events-none absolute bottom-[14%] right-[1%] h-44 w-44 rounded-full blur-[38px]",
+          isKrishana
+            ? "bg-[radial-gradient(circle,_rgba(16,185,129,0.24),_transparent_72%)]"
+            : "bg-[radial-gradient(circle,_rgba(217,119,6,0.24),_transparent_72%)]"
+        )}
       />
 
       <div
@@ -290,10 +308,20 @@ export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
             ref={(element) => {
               badgeChipRefs.current[index] = element;
             }}
-            className="hero-visual-badge rounded-full border border-[var(--accent)]/25 bg-[rgba(255,253,249,0.82)] px-4 py-2.5 text-[11px] font-bold text-[var(--primary)] shadow-[0_16px_30px_rgba(76,38,18,0.14)] backdrop-blur-xl dark:bg-[rgba(34,17,19,0.84)]"
+            className={cn(
+              "hero-visual-badge rounded-full border px-4 py-2.5 text-[11px] font-bold shadow-[0_16px_30px_rgba(76,38,18,0.14)] backdrop-blur-xl transition-all duration-300",
+              isKrishana
+                ? "border-cyan-500/20 bg-[rgba(240,249,255,0.82)] text-slate-800 shadow-[0_16px_30px_rgba(14,165,233,0.1)] dark:border-cyan-500/45 dark:bg-[rgba(7,26,44,0.78)] dark:text-[#EAF6FF] dark:shadow-[0_0_24px_rgba(34,211,238,0.22)]"
+                : "border-[var(--accent)]/25 bg-[rgba(255,253,249,0.82)] text-[var(--primary)] dark:bg-[rgba(34,17,19,0.84)]"
+            )}
           >
             <span className="flex items-center gap-2 whitespace-nowrap">
-              <Icon className="h-4 w-4 text-[var(--accent)]" />
+              <Icon className={cn(
+                "h-4 w-4",
+                isKrishana 
+                  ? "text-cyan-600 dark:text-cyan-400" 
+                  : "text-[var(--accent)]"
+              )} />
               {label}
             </span>
           </div>
@@ -303,19 +331,39 @@ export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
       <div
         ref={shadowRef}
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-[88%] z-[1] h-14 w-[76%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,_rgba(61,27,12,0.34)_0%,_rgba(61,27,12,0.12)_42%,_transparent_76%)] opacity-40 blur-2xl dark:bg-[radial-gradient(circle,_rgba(217,119,6,0.18)_0%,_rgba(23,10,12,0.22)_48%,_transparent_78%)]"
+        className={cn(
+          "pointer-events-none absolute left-1/2 top-[88%] z-[1] h-14 w-[76%] -translate-x-1/2 rounded-full opacity-40 blur-2xl",
+          isKrishana
+            ? "bg-[radial-gradient(circle,_rgba(14,165,233,0.34)_0%,_rgba(14,165,233,0.12)_42%,_transparent_76%)] dark:bg-[radial-gradient(circle,_rgba(34,211,238,0.18)_0%,_rgba(15,23,42,0.22)_48%,_transparent_78%)]"
+            : "bg-[radial-gradient(circle,_rgba(61,27,12,0.34)_0%,_rgba(61,27,12,0.12)_42%,_transparent_76%)] dark:bg-[radial-gradient(circle,_rgba(217,119,6,0.18)_0%,_rgba(23,10,12,0.22)_48%,_transparent_78%)]"
+        )}
       />
 
       <div ref={stageRef} className="relative z-[4] will-change-transform">
-        <div className="hero-stage-border rounded-[2rem] p-[1.5px]">
+        <div className={cn(
+          "rounded-[2rem] p-[1.5px]",
+          isKrishana
+            ? "bg-[linear-gradient(135deg,rgba(14,165,233,0.4),rgba(16,185,129,0.4))]"
+            : "hero-stage-border"
+        )}>
           <div
             ref={frameRef}
-            className="hero-stage-glass relative overflow-hidden rounded-[calc(2rem-1px)] px-4 pb-4 pt-4 shadow-[0_26px_68px_rgba(109,42,18,0.18)] transition-[box-shadow,border-color] duration-500 group-hover/hero:shadow-[0_30px_84px_rgba(128,0,32,0.24)] sm:px-5 sm:pb-5 sm:pt-5"
+            className={cn(
+              "relative overflow-hidden rounded-[calc(2rem-1px)] px-4 pb-4 pt-4 transition-[box-shadow,border-color] duration-500 sm:px-5 sm:pb-5 sm:pt-5",
+              isKrishana
+                ? "glass-panel shadow-[0_26px_68px_rgba(14,165,233,0.15)] group-hover/hero:shadow-[0_30px_84px_rgba(14,165,233,0.22)]"
+                : "hero-stage-glass shadow-[0_26px_68px_rgba(109,42,18,0.18)] group-hover/hero:shadow-[0_30px_84px_rgba(128,0,32,0.24)]"
+            )}
           >
             <div
               ref={shineRef}
               aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 left-[-40%] w-[42%] bg-[linear-gradient(105deg,transparent_0%,rgba(255,255,255,0.05)_20%,rgba(255,247,224,0.72)_52%,rgba(255,255,255,0.06)_82%,transparent_100%)] mix-blend-screen"
+              className={cn(
+                "pointer-events-none absolute inset-y-0 left-[-40%] w-[42%] mix-blend-screen",
+                isKrishana
+                  ? "bg-[linear-gradient(105deg,transparent_0%,rgba(255,255,255,0.05)_20%,rgba(224,242,254,0.72)_52%,rgba(255,255,255,0.06)_82%,transparent_100%)]"
+                  : "bg-[linear-gradient(105deg,transparent_0%,rgba(255,255,255,0.05)_20%,rgba(255,247,224,0.72)_52%,rgba(255,255,255,0.06)_82%,transparent_100%)]"
+              )}
             />
             <div
               aria-hidden="true"
@@ -327,32 +375,62 @@ export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
             />
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-[linear-gradient(160deg,rgba(255,255,255,0.18),transparent_34%,rgba(217,119,6,0.07)_92%)]"
+              className={cn(
+                "pointer-events-none absolute inset-0",
+                isKrishana
+                  ? "bg-[linear-gradient(160deg,rgba(255,255,255,0.18),transparent_34%,rgba(34,211,238,0.07)_92%)]"
+                  : "bg-[linear-gradient(160deg,rgba(255,255,255,0.18),transparent_34%,rgba(217,119,6,0.07)_92%)]"
+              )}
             />
 
             <div
               ref={imageParallaxRef}
               className="relative transition-transform duration-500 group-hover/hero:scale-[1.02]"
             >
-              <div className="relative overflow-hidden rounded-[1.55rem] border border-white/18 bg-[linear-gradient(165deg,rgba(255,253,249,0.9),rgba(255,244,225,0.76))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] dark:bg-[linear-gradient(165deg,rgba(47,19,21,0.95),rgba(31,12,14,0.9))] sm:p-5">
+              <div className={cn(
+                "relative overflow-hidden rounded-[1.55rem] border border-white/18 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.4)] sm:p-5",
+                isKrishana
+                  ? "bg-[linear-gradient(165deg,rgba(240,253,250,0.95),rgba(224,242,254,0.85))] dark:bg-[linear-gradient(165deg,rgba(15,23,42,0.95),rgba(30,41,59,0.9))]"
+                  : "bg-[linear-gradient(165deg,rgba(255,253,249,0.9),rgba(255,244,225,0.76))] dark:bg-[linear-gradient(165deg,rgba(47,19,21,0.95),rgba(31,12,14,0.9))]"
+              )}>
                 <div
                   aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.42),transparent_46%),linear-gradient(160deg,transparent_44%,rgba(217,119,6,0.10)_100%)]"
+                  className={cn(
+                    "pointer-events-none absolute inset-0",
+                    isKrishana
+                      ? "bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.42),transparent_46%),linear-gradient(160deg,transparent_44%,rgba(34,211,238,0.10)_100%)]"
+                      : "bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.42),transparent_46%),linear-gradient(160deg,transparent_44%,rgba(217,119,6,0.10)_100%)]"
+                  )}
                 />
                 <div
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-[10px] rounded-[1.25rem] border border-[var(--primary)]/10"
                 />
-                <div ref={imageFloatRef} className="relative z-10">
-                  <Image
-                    src="/nalanda/hero-nalanda-3d.png"
-                    alt="Premium Nalanda Foundation 3D hero illustration representing career-ready learning."
-                    width={980}
-                    height={980}
-                    priority
-                    sizes="(max-width: 1023px) 92vw, 46vw"
-                    className="h-auto w-full object-contain [filter:drop-shadow(0_24px_44px_rgba(109,42,18,0.18))] dark:[filter:drop-shadow(0_26px_52px_rgba(217,119,6,0.12))]"
-                  />
+                <div ref={imageFloatRef} className="relative z-10 aspect-square w-full flex items-center justify-center overflow-hidden">
+                  {imageError ? (
+                    <div className="w-full h-full rounded-[1rem] bg-[linear-gradient(135deg,#0EA5E9_0%,#10B981_50%,#22D3EE_100%)] flex items-center justify-center p-6 text-center text-white font-bold shadow-inner">
+                      <div className="space-y-2">
+                        <div className="text-xl font-extrabold tracking-wide uppercase">KRISHANA JAN UTHAN SANSTHAN</div>
+                        <div className="text-xs opacity-90 font-medium">Empowering Youth Through Skills & Digital Growth</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <Image
+                      src={isKrishana ? "/krishana/hero-campus-learning.png" : "/nalanda/hero-nalanda-3d.png"}
+                      alt={isKrishana ? "Krishana Jan Uthan Sansthan Campus learning representing skills & education" : "Premium Nalanda Foundation 3D hero illustration representing career-ready learning."}
+                      width={980}
+                      height={980}
+                      priority
+                      sizes="(max-width: 1023px) 92vw, 46vw"
+                      onError={() => setImageError(true)}
+                      className={cn(
+                        "h-auto w-full object-contain",
+                        isKrishana 
+                          ? "[filter:drop-shadow(0_24px_44px_rgba(14,165,233,0.18))] dark:[filter:drop-shadow(0_26px_52px_rgba(34,211,238,0.12))]"
+                          : "[filter:drop-shadow(0_24px_44px_rgba(109,42,18,0.18))] dark:[filter:drop-shadow(0_26px_52px_rgba(217,119,6,0.12))]"
+                      )}
+                    />
+                  )}
                 </div>
               </div>
             </div>
@@ -362,3 +440,4 @@ export function HeroVisual({ badges }: { badges: HeroVisualBadge[] }) {
     </div>
   );
 }
+

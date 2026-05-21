@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { currentSite } from "@/config/site";
 import { getServerLanguageContext } from "@/i18n/server";
+import { cn } from "@/lib/utils";
 
 export async function Footer() {
   const { messages } = await getServerLanguageContext();
@@ -13,13 +14,16 @@ export async function Footer() {
           <div className="space-y-4 md:col-span-2">
             <div className="flex items-center gap-3">
               <Image
-                src="/nalanda/logo.jpeg"
+                src={currentSite.logo}
                 alt={`${currentSite.name} Logo`}
                 width={40}
                 height={40}
                 className="h-10 w-10 rounded-full border border-[var(--primary)] object-cover shadow-sm"
               />
-              <h3 className="text-lg font-serif font-extrabold text-[var(--primary)]">
+              <h3 className={cn(
+                "text-lg font-extrabold text-[var(--primary)]",
+                process.env.NEXT_PUBLIC_SITE_VARIANT === "krishana" ? "font-sans" : "font-serif"
+              )}>
                 {currentSite.name}
               </h3>
             </div>

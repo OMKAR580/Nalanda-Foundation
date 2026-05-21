@@ -1,4 +1,4 @@
-export type SiteVariant = 'nalanda' | 'tech';
+export type SiteVariant = 'nalanda' | 'tech' | 'krishana';
 
 export const SITE_VARIANT = (process.env.NEXT_PUBLIC_SITE_VARIANT || 'nalanda') as SiteVariant;
 
@@ -8,7 +8,8 @@ export const siteConfig = {
     shortName: 'Nalanda',
     programName: 'Nalanda Foundation Learning Portal',
     tagline: 'Ancient Wisdom. Modern Skills. | Learn. Grow. Build Your Future.',
-    description: 'An ancient academic legacy meets modern innovation. Explore 12 premium skill-based internship & certification programs, gain verified credentials, and accelerate your career pathway.',
+    description: 'An ancient academic legacy meets modern innovation. Explore premium skill-based internship & certification programs, gain verified credentials, and accelerate your career pathway.',
+    logo: '/nalanda/logo.jpeg',
     theme: {
       primary: '#800020', // deep maroon
       secondary: '#C35237', // terracotta
@@ -32,12 +33,43 @@ export const siteConfig = {
       address: 'Nalanda Ancient University Heritage Campus, Rajgir, Bihar, India'
     }
   },
+  krishana: {
+    name: 'KRISHANA JAN UTHAN SANSTHAN',
+    shortName: 'KJUS',
+    programName: 'KJUS Skill & Digital Training Programs',
+    tagline: 'Empowering Youth Through Skills, Education & Digital Growth',
+    description: 'KRISHANA JAN UTHAN SANSTHAN helps students and young learners access practical programs, digital education, mentorship, and career-focused opportunities.',
+    logo: '/krishana/logo.png',
+    theme: {
+      primary: '#0EA5E9', // Tech blue
+      secondary: '#10B981', // Emerald green
+      accent: '#22D3EE', // Cyan
+      bg: '#EAF6FF', // Soft blue background
+      foreground: '#0F172A', // Dark text
+      card: '#FFFFFF', // White
+      border: '#CBD5E1'
+    },
+    hero: {
+      badge: 'Skill-Based Programs',
+      title: 'Empowering Youth With Digital Skills & Career Growth',
+      subtitle: 'KRISHANA JAN UTHAN SANSTHAN helps students and young learners access practical programs, digital education, mentorship, and career-focused opportunities.',
+      primaryCta: 'Explore Programs',
+      secondaryCta: 'Complete Registration'
+    },
+    contact: {
+      email: 'admissions@krishanajanuthan.org',
+      phone: '+91 99999 88888',
+      whatsapp: 'https://chat.whatsapp.com/placeholder-krishana',
+      address: 'Krishana Campus, India'
+    }
+  },
   tech: {
     name: 'Modern Tech Academy',
     shortName: 'MTA',
     programName: 'Tech Training Programs 2026',
     tagline: 'Future-Ready Technology Training',
     description: 'Next-generation tech education and advanced skill development.',
+    logo: '/krishana/logo.png', // Fallback or placeholder
     theme: {
       primary: '#06b6d4',
       secondary: '#8b5cf6',
@@ -64,3 +96,4 @@ export const siteConfig = {
 };
 
 export const currentSite = siteConfig[SITE_VARIANT] || siteConfig.nalanda;
+

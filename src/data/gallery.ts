@@ -63,3 +63,63 @@ export const galleryItems: GalleryItem[] = [
     alt: "Nalanda cohort members learning together in a community session.",
   },
 ];
+
+export const krishanaGalleryItems: GalleryItem[] = [
+  {
+    id: "krishana-workshop-session",
+    title: "Workshop Session",
+    category: "Workshops",
+    caption: "Practical hands-on training sessions.",
+    imageSrc: "/krishana/gallery/workshop-session.png",
+    alt: "Krishana workshop session with students in a guided practical class.",
+  },
+  {
+    id: "krishana-mentor-guidance",
+    title: "Mentorship Guidance",
+    category: "Mentorship",
+    caption: "Expert mentorship for career growth.",
+    imageSrc: "/krishana/gallery/mentorship-guidance.png",
+    alt: "Krishana mentorship discussion with mentor guidance for students.",
+  },
+  {
+    id: "krishana-practical-projects",
+    title: "Practical Projects",
+    category: "Projects",
+    caption: "Build portfolio projects that stand out.",
+    imageSrc: "/krishana/gallery/practical-projects.png",
+    alt: "Krishana students building a practical project for their portfolio.",
+  },
+  {
+    id: "krishana-student-success",
+    title: "Student Success",
+    category: "Certification",
+    caption: "Celebrating students achieving milestones.",
+    imageSrc: "/krishana/gallery/student-success.png",
+    alt: "Krishana students celebrating their success and milestones.",
+  },
+  {
+    id: "krishana-digital-learning",
+    title: "Digital Learning",
+    category: "Student Learning",
+    caption: "Access live interactive digital programs.",
+    imageSrc: "/krishana/gallery/digital-learning.png",
+    alt: "Students learning with laptops during a digital session.",
+  },
+  {
+    id: "krishana-community-learning",
+    title: "Community Learning",
+    category: "Community",
+    caption: "Collaborate and grow with a peer community.",
+    imageSrc: "/krishana/gallery/community-learning.png",
+    alt: "Krishana cohort members learning together in a community session.",
+  },
+  {
+    id: "krishana-career-growth",
+    title: "Career Growth",
+    category: "Mentorship",
+    caption: "Empowering career paths and skill development.",
+    imageSrc: "/krishana/gallery/career-growth.png",
+    alt: "Students discussing digital skills and career growth.",
+  },
+];
+

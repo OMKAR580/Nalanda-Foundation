@@ -6,6 +6,9 @@ export function getSiteVariant(): SiteVariant {
   if (variant === "tech") {
     return "tech";
   }
+  if (variant === "krishana") {
+    return "krishana";
+  }
 
   return "nalanda";
 }

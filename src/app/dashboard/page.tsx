@@ -25,7 +25,7 @@ import { getUserEnrollments, getUserPayments } from "@/lib/supabase/server";
 import { getRegistrationStatus } from "@/lib/registration/server";
 import { courses } from "@/data/courses";
 import { CourseImage } from "@/components/ui/CourseImage";
-import { currentSite } from "@/config/site";
+import { currentSite, SITE_VARIANT } from "@/config/site";
 import { getServerLanguageContext } from "@/i18n/server";
 import { AnalyticsExternalLink } from "@/components/analytics/AnalyticsExternalLink";
 import {
@@ -55,6 +55,7 @@ interface DBPayment {
 export default async function DashboardPage() {
   const user = await currentUser();
   const { messages } = await getServerLanguageContext();
+  const titleFont = SITE_VARIANT === "krishana" ? "font-sans" : "font-serif";
 
   if (!user) {
     redirect("/sign-in");
@@ -85,7 +86,7 @@ export default async function DashboardPage() {
             <AlertCircle className="h-8 w-8" />
           </div>
           <div className="space-y-2">
-            <h1 className="font-serif text-2xl font-bold text-[var(--primary)]">
+            <h1 className={`${titleFont} text-2xl font-bold text-[var(--primary)]`}>
               {messages.dashboard.connectionNoticeTitle}
             </h1>
             <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
@@ -194,7 +195,7 @@ export default async function DashboardPage() {
               <Sparkles className="h-3 w-3 text-[var(--accent)]" />{" "}
               {messages.dashboard.verifiedBadge}
             </span>
-            <h1 className="font-serif text-2xl font-extrabold text-[var(--foreground)] sm:text-4xl">
+            <h1 className={`${titleFont} text-2xl font-extrabold text-[var(--foreground)] sm:text-4xl`}>
               {messages.dashboard.welcomeBack},{" "}
               {registrationData.full_name || user.firstName || "Student"}!
             </h1>
@@ -209,13 +210,21 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        <div className="relative flex flex-col items-center justify-between gap-6 overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-r from-[var(--primary)] via-[#C35237] to-[var(--accent)] p-6 text-white shadow-xl md:flex-row md:p-8">
+        <div className={`relative flex flex-col items-center justify-between gap-6 overflow-hidden rounded-3xl border border-white/5 p-6 text-white shadow-xl md:flex-row md:p-8 ${
+          SITE_VARIANT === "krishana"
+            ? "bg-gradient-to-r from-[#0EA5E9] via-[#10B981] to-[#22D3EE]"
+            : "bg-gradient-to-r from-[var(--primary)] via-[#C35237] to-[var(--accent)]"
+        }`}>
           <div className="space-y-2 text-center md:text-left">
-            <h2 className="flex items-center justify-center gap-2.5 font-serif text-lg font-bold md:justify-start md:text-2xl">
-              <MessageSquare className="h-6.5 w-6.5 animate-pulse text-[#FAF0D9]" />
+            <h2 className={`flex items-center justify-center gap-2.5 ${titleFont} text-lg font-bold md:justify-start md:text-2xl`}>
+              <MessageSquare className={`h-6.5 w-6.5 animate-pulse ${
+                SITE_VARIANT === "krishana" ? "text-white" : "text-[#FAF0D9]"
+              }`} />
               {messages.dashboard.whatsappHeading}
             </h2>
-            <p className="max-w-xl text-xs leading-relaxed text-[#FAF0D9]/90">
+            <p className={`max-w-xl text-xs leading-relaxed ${
+              SITE_VARIANT === "krishana" ? "text-white/90" : "text-[#FAF0D9]/90"
+            }`}>
               {messages.dashboard.whatsappDescription}
             </p>
           </div>
@@ -227,7 +236,11 @@ export default async function DashboardPage() {
             source="dashboard"
             className="w-full md:w-auto"
           >
-            <Button className="h-12 w-full rounded-xl bg-[#FAF0D9] px-8 text-xs font-extrabold uppercase tracking-wider text-[#800020] shadow-md transition-all hover:scale-[1.03] hover:bg-white hover:text-[#6B1D2F] active:scale-[0.98] md:w-auto">
+            <Button className={`h-12 w-full rounded-xl px-8 text-xs font-extrabold uppercase tracking-wider shadow-md transition-all hover:scale-[1.03] hover:bg-white active:scale-[0.98] md:w-auto ${
+              SITE_VARIANT === "krishana"
+                ? "bg-white text-[#0EA5E9] hover:text-[#0284C7]"
+                : "bg-[#FAF0D9] text-[#800020] hover:text-[#6B1D2F]"
+            }`}>
               {messages.dashboard.joinWhatsapp}
             </Button>
           </AnalyticsExternalLink>
@@ -236,7 +249,7 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="space-y-8 lg:col-span-2">
             <section className="space-y-4">
-              <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-[var(--primary)]">
+              <h2 className={`flex items-center gap-2 ${titleFont} text-lg font-bold text-[var(--primary)]`}>
                 <CheckCircle2 className="h-5 w-5 text-[var(--secondary)]" />
                 {messages.dashboard.onboardingHeading}
               </h2>
@@ -261,7 +274,9 @@ export default async function DashboardPage() {
                         className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
                           enrolledPrograms.length > 0
                             ? "bg-green-100 text-green-600 dark:bg-green-950/40 dark:text-green-400"
-                            : "glow-pulse-saffron bg-[var(--primary)]/10 text-[var(--primary)]"
+                            : SITE_VARIANT === "krishana"
+                              ? "glow-pulse-cyan bg-[var(--primary)]/10 text-[var(--primary)]"
+                              : "glow-pulse-saffron bg-[var(--primary)]/10 text-[var(--primary)]"
                         }`}
                       >
                         {enrolledPrograms.length > 0 ? (
@@ -307,7 +322,7 @@ export default async function DashboardPage() {
             </section>
 
             <section className="space-y-4">
-              <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-[var(--primary)]">
+              <h2 className={`flex items-center gap-2 ${titleFont} text-lg font-bold text-[var(--primary)]`}>
                 <BookOpen className="h-5 w-5 text-[var(--secondary)]" />
                 {messages.dashboard.enrolledProgramsHeading}
               </h2>
@@ -363,7 +378,7 @@ export default async function DashboardPage() {
                         <BookOpen className="h-7 w-7 opacity-75" />
                       </div>
                       <div className="space-y-1.5">
-                        <h3 className="font-serif text-base font-extrabold text-[var(--foreground)]">
+                        <h3 className={`${titleFont} text-base font-extrabold text-[var(--foreground)]`}>
                           {messages.dashboard.noProgramsTitle}
                         </h3>
                         <p className="mx-auto max-w-sm text-xs leading-relaxed text-[var(--muted-foreground)]">
@@ -383,7 +398,7 @@ export default async function DashboardPage() {
 
             {enrolledPrograms.length === 0 && recommendedCourse ? (
               <section className="space-y-4">
-                <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-[var(--primary)]">
+                <h2 className={`flex items-center gap-2 ${titleFont} text-lg font-bold text-[var(--primary)]`}>
                   <Lightbulb className="h-5 w-5 text-[var(--accent)]" />
                   {messages.dashboard.recommendedHeading}
                 </h2>
@@ -402,10 +417,14 @@ export default async function DashboardPage() {
                       />
                     </div>
                     <div className="flex-1 space-y-2 text-center sm:text-left">
-                      <span className="inline-block rounded bg-[#C35237] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#FAF6EE] shadow-sm">
+                      <span className={`inline-block rounded px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider shadow-sm ${
+                        SITE_VARIANT === "krishana"
+                          ? "bg-emerald-600 text-white"
+                          : "bg-[#C35237] text-[#FAF6EE]"
+                      }`}>
                         {messages.dashboard.topMatch}
                       </span>
-                      <h3 className="text-base font-extrabold text-[var(--foreground)] sm:text-lg">
+                      <h3 className={`text-base font-extrabold text-[var(--foreground)] sm:text-lg ${titleFont}`}>
                         {recommendedCourse.title}
                       </h3>
                       <p className="text-xs text-[var(--muted-foreground)]">
@@ -416,7 +435,11 @@ export default async function DashboardPage() {
                       <Link
                         href={`/programs/${recommendedCourse.slug || recommendedCourse.id}`}
                       >
-                        <Button className="h-10 rounded-xl bg-[var(--accent)] px-6 font-bold text-white shadow-md transition-all hover:bg-[#B45309]">
+                        <Button className={`h-10 rounded-xl bg-[var(--accent)] px-6 font-bold text-white shadow-md transition-all ${
+                          SITE_VARIANT === "krishana"
+                            ? "hover:bg-[#0EA5E9]"
+                            : "hover:bg-[#B45309]"
+                        }`}>
                           {messages.common.viewDetails}
                         </Button>
                       </Link>
@@ -429,7 +452,7 @@ export default async function DashboardPage() {
             <Card className="overflow-hidden rounded-2xl border border-[var(--border)]/60 bg-[var(--card)] shadow-sm">
               <div className="flex items-center gap-3 bg-[var(--primary)] p-4.5 text-[var(--primary-foreground)]">
                 <AlertCircle className="h-5 w-5 text-[var(--accent)]" />
-                <h3 className="font-serif text-sm font-bold tracking-wide">
+                <h3 className={`text-sm font-bold tracking-wide ${titleFont}`}>
                   {messages.dashboard.noticeboardTitle}
                 </h3>
               </div>
@@ -438,7 +461,7 @@ export default async function DashboardPage() {
                   <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--secondary)]">
                     {messages.dashboard.latestUpdate}
                   </span>
-                  <h4 className="text-sm font-extrabold text-[var(--foreground)]">
+                  <h4 className={`text-sm font-extrabold text-[var(--foreground)] ${titleFont}`}>
                     {messages.dashboard.latestUpdateTitle}
                   </h4>
                   <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
@@ -449,7 +472,7 @@ export default async function DashboardPage() {
                   <span className="text-[9px] font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
                     {messages.dashboard.systemUpdate}
                   </span>
-                  <h4 className="text-sm font-bold text-[var(--foreground)]">
+                  <h4 className={`text-sm font-bold text-[var(--foreground)] ${titleFont}`}>
                     {messages.dashboard.systemUpdateTitle}
                   </h4>
                   <p className="text-xs leading-relaxed text-[var(--muted-foreground)]">
@@ -460,7 +483,7 @@ export default async function DashboardPage() {
             </Card>
 
             <section className="space-y-4">
-              <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-[var(--primary)]">
+              <h2 className={`flex items-center gap-2 ${titleFont} text-lg font-bold text-[var(--primary)]`}>
                 <FileText className="h-5 w-5 text-[var(--secondary)]" />
                 {messages.dashboard.profileSummaryHeading}
               </h2>
@@ -550,7 +573,7 @@ export default async function DashboardPage() {
                         <span className="block text-[9px] font-bold uppercase tracking-wider text-[var(--muted-foreground)]">
                           {messages.dashboard.primaryTrack}
                         </span>
-                        <span className="mt-0.5 block font-serif text-sm font-bold text-[var(--primary)]">
+                        <span className={`mt-0.5 block text-sm font-bold text-[var(--primary)] ${titleFont}`}>
                           {registrationData.first_preference}
                         </span>
                       </div>
@@ -581,7 +604,7 @@ export default async function DashboardPage() {
             <Card className="overflow-hidden rounded-2xl border border-[var(--border)]/60 bg-[var(--card)] shadow-sm transition-all duration-300">
               <div className="flex items-center gap-3 border-b border-[var(--border)]/30 bg-[var(--muted)]/30 p-4.5">
                 <Award className="h-5 w-5 text-[var(--accent)]" />
-                <h3 className="font-serif text-sm font-extrabold text-[var(--primary)]">
+                <h3 className={`text-sm font-extrabold text-[var(--primary)] ${titleFont}`}>
                   {messages.dashboard.academicStatusTitle}
                 </h3>
               </div>
@@ -616,7 +639,7 @@ export default async function DashboardPage() {
             <Card className="overflow-hidden rounded-2xl border border-[var(--border)]/60 bg-[var(--card)] shadow-sm transition-all duration-300">
               <div className="flex items-center gap-3 border-b border-[var(--border)]/30 bg-[var(--muted)]/30 p-4.5">
                 <CalendarDays className="h-5 w-5 text-[var(--secondary)]" />
-                <h3 className="font-serif text-sm font-extrabold text-[var(--primary)]">
+                <h3 className={`text-sm font-extrabold text-[var(--primary)] ${titleFont}`}>
                   {messages.dashboard.collegeFeeStatusTitle}
                 </h3>
               </div>
@@ -650,7 +673,7 @@ export default async function DashboardPage() {
             <Card className="overflow-hidden rounded-2xl border border-[var(--border)]/60 bg-[var(--card)] shadow-sm transition-all duration-300">
               <div className="flex items-center gap-3 border-b border-[var(--border)]/30 bg-[var(--muted)]/30 p-4.5">
                 <Video className="h-5 w-5 text-[var(--primary)]" />
-                <h3 className="font-serif text-sm font-extrabold text-[var(--primary)]">
+                <h3 className={`text-sm font-extrabold text-[var(--primary)] ${titleFont}`}>
                   {messages.dashboard.googleMeetAccessTitle}
                 </h3>
               </div>
@@ -695,7 +718,7 @@ export default async function DashboardPage() {
             <Card className="overflow-hidden rounded-2xl border border-[var(--border)]/60 bg-[var(--card)] shadow-sm transition-all duration-300">
               <div className="flex items-center gap-3 border-b border-[var(--border)]/30 bg-[var(--muted)]/30 p-4.5">
                 <Phone className="h-5 w-5 text-[var(--secondary)]" />
-                <h3 className="font-serif text-sm font-extrabold text-[var(--primary)]">
+                <h3 className={`text-sm font-extrabold text-[var(--primary)] ${titleFont}`}>
                   {messages.dashboard.emergencyTitle}
                 </h3>
               </div>
@@ -730,7 +753,7 @@ export default async function DashboardPage() {
             <Card className="overflow-hidden rounded-2xl border border-[var(--border)]/60 bg-[var(--card)] shadow-sm transition-all duration-300">
               <div className="flex items-center gap-3 border-b border-[var(--border)]/30 bg-[var(--muted)]/30 p-4.5">
                 <CreditCard className="h-5 w-5 text-[var(--primary)]" />
-                <h3 className="font-serif text-sm font-extrabold text-[var(--primary)]">
+                <h3 className={`text-sm font-extrabold text-[var(--primary)] ${titleFont}`}>
                   {messages.dashboard.billingTitle}
                 </h3>
               </div>

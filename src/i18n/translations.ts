@@ -1569,7 +1569,214 @@ export function resolveLanguage(value: string | null | undefined): Language {
   return isLanguage(value) ? value : DEFAULT_LANGUAGE;
 }
 
+
+const krishanaEnglishOverrides: DeepPartial<Messages> = {
+  footer: {
+    description:
+      "Empowering youth through skills, education, and digital growth. Explore practical programs, digital education, mentorship, and career-focused opportunities.",
+    rightsReserved: "All rights reserved.",
+    initiative: "Digital Youth Empowerment Initiative",
+  },
+  hero: {
+    visualBadges: [
+      "Digital Learning",
+      "Skill Programs",
+      "Community Support",
+      "Google Meet Classes",
+    ],
+    copyBadges: [
+      "Digital Learning",
+      "Skill Programs",
+      "Community Support",
+      "Google Meet Classes",
+    ],
+    titlePrefix: "Empowering Youth With",
+    typewriterWords: [
+      "Digital Skills",
+      "Career Growth",
+      "Practical Learning",
+      "Youth Empowerment",
+    ],
+    subtitle:
+      "KRISHANA JAN UTHAN SANSTHAN helps students and young learners access practical programs, digital education, mentorship, and career-focused opportunities.",
+  },
+  home: {
+    about: {
+      badge: "Youth Empowerment & Skills",
+      heading: "About KRISHANA JAN UTHAN SANSTHAN",
+      subtitle:
+        "Practical technology training and digital learning synthesized for modern career growth and social upliftment.",
+      missionTitle: "Our Mission",
+      missionDescription:
+        "To empower young minds with practical digital skills, vocational training, and career readiness, helping them bridge the digital divide and build sustainable career pathways.",
+      visionTitle: "Our Vision",
+      visionDescription:
+        "To foster a future-ready generation equipped with digital competencies, hands-on portfolio experience, and the confidence to drive social upliftment and career success.",
+      whyHeading: "Why KRISHANA JAN UTHAN SANSTHAN?",
+      whyItems: [
+        {
+          title: "Modern Tech Training",
+          description:
+            "Equipped with modern learning modules to provide deep tech understanding, industry insights, and career outlooks.",
+        },
+        {
+          title: "Practical Skill Development",
+          description:
+            "Say goodbye to abstract rote-learning. Build production-grade code, actual design projects, and live portfolios.",
+        },
+        {
+          title: "Certification Support",
+          description:
+            "Receive recognized, verifiable digital learning credentials upon successful course track completion.",
+        },
+        {
+          title: "Helpline & Coordinators",
+          description:
+            "Dedicated WhatsApp groups, student helplines, and cohort support to assist you during every learning module.",
+        },
+        {
+          title: "Affordable Program Access",
+          description:
+            "Program fees are aligned to approved colleges and confirmed before payment for each student cohort.",
+        },
+        {
+          title: "Tailored For Careers",
+          description:
+            "Every track is built specifically to address current market trends, internships demands, and career-readiness.",
+        },
+      ],
+    },
+  },
+  registrationGate: {
+    portalBadge: "KRISHANA JAN UTHAN SANSTHAN Portal",
+  },
+  registrationForm: {
+    academic: {
+      collegePlaceholder: "e.g. Government College",
+    },
+    consent: {
+      declarationLabel:
+        "Declaration *: I hereby declare that all information submitted in this application is correct, complete, and true.",
+      termsLabel:
+        "Terms Agreement *: I agree to the rules, code of conduct, flexible learning hours, and structure defined by the academic panel of KRISHANA JAN UTHAN SANSTHAN.",
+    },
+  },
+  dashboard: {
+    verifiedBadge: "KJUS Verified Student",
+  },
+  paymentSuccess: {
+    successDescription:
+      "Thank you for registering with KRISHANA JAN UTHAN SANSTHAN. Your payment has been successfully verified, and your dashboard now lists your enrolled programs and Google Meet live class access.",
+  },
+};
+
+const krishanaHindiOverrides: DeepPartial<Messages> = {
+  footer: {
+    description:
+      "कौशल, शिक्षा और डिजिटल विकास के माध्यम से युवाओं का सशक्तिकरण। व्यावहारिक प्रोग्राम, डिजिटल शिक्षा, मेंटरशिप और करियर-उन्मुख अवसरों का लाभ उठाएं।",
+    rightsReserved: "सर्वाधिकार सुरक्षित।",
+    initiative: "डिजिटल युवा सशक्तिकरण पहल",
+  },
+  hero: {
+    visualBadges: [
+      "डिजिटल लर्निंग",
+      "कौशल प्रोग्राम",
+      "सामुदायिक सहायता",
+      "गूगल मीट क्लासेस",
+    ],
+    copyBadges: [
+      "डिजिटल लर्निंग",
+      "कौशल प्रोग्राम",
+      "सामुदायिक सहायता",
+      "गूगल मीट क्लासेस",
+    ],
+    titlePrefix: "युवाओं को सशक्त बनाना",
+    typewriterWords: [
+      "डिजिटल कौशल",
+      "करियर विकास",
+      "व्यावहारिक सीख",
+      "युवा सशक्तिकरण",
+    ],
+    subtitle:
+      "कृष्णा जन उत्थान संस्थान छात्रों और युवा शिक्षार्थियों को व्यावहारिक प्रोग्राम, डिजिटल शिक्षा, मेंटरशिप और करियर-उन्मुख अवसरों तक पहुंच प्राप्त करने में मदद करता है।",
+  },
+  home: {
+    about: {
+      badge: "युवा सशक्तिकरण और कौशल",
+      heading: "कृष्णा जन उत्थान संस्थान के बारे में",
+      subtitle:
+        "व्यावहारिक तकनीकी प्रशिक्षण और डिजिटल लर्निंग जिसे आधुनिक करियर विकास और सामाजिक उत्थान के लिए तैयार किया गया है।",
+      missionTitle: "हमारा मिशन",
+      missionDescription:
+        "युवा दिमाग को व्यावहारिक डिजिटल कौशल, व्यावसायिक प्रशिक्षण और करियर की तैयारी के साथ सशक्त बनाना, जिससे वे डिजिटल अंतर को पाट सकें और स्थायी करियर बना सकें।",
+      visionTitle: "हमारा दृष्टिकोण",
+      visionDescription:
+        "डिजिटल दक्षताओं, व्यावहारिक पोर्टफोलियो अनुभव और सामाजिक उत्थान तथा करियर की सफलता को बढ़ावा देने के आत्मविश्वास से लैस एक भविष्य-तैयार पीढ़ी का पोषण करना।",
+      whyHeading: "कृष्णा जन उत्थान संस्थान क्यों?",
+      whyItems: [
+        {
+          title: "आधुनिक टेक प्रशिक्षण",
+          description:
+            "गहन तकनीकी समझ, उद्योग अंतर्दृष्टि और करियर आउटलुक प्रदान करने के लिए आधुनिक शिक्षण मॉड्यूल से लैस।",
+        },
+        {
+          title: "व्यावहारिक कौशल विकास",
+          description:
+            "अमूर्त रटने की विद्या को अलविदा कहें। प्रोडक्शन-ग्रेड कोड, वास्तविक डिज़ाइन प्रोजेक्ट और लाइव पोर्टफोलियो बनाएं।",
+        },
+        {
+          title: "सर्टिफिकेशन सहायता",
+          description:
+            "सफलतापूर्वक कोर्स ट्रैक पूरा करने पर मान्यता प्राप्त, सत्यापन योग्य डिजिटल लर्निंग क्रेडेंशियल प्राप्त करें।",
+        },
+        {
+          title: "हेल्पलाइन और समन्वयक",
+          description:
+            "प्रत्येक शिक्षण मॉड्यूल के दौरान आपकी सहायता के लिए समर्पित व्हाट्सएप ग्रुप, छात्र हेल्पलाइन और कोहोर्ट सहायता।",
+        },
+        {
+          title: "सस्ती प्रोग्राम पहुंच",
+          description:
+            "प्रोग्राम शुल्क स्वीकृत कॉलेजों के अनुरूप हैं और प्रत्येक छात्र कोहोर्ट के लिए भुगतान से पहले पुष्टि की जाती है।",
+        },
+        {
+          title: "करियर के लिए अनुकूल",
+          description:
+            "हर ट्रैक विशेष रूप से वर्तमान बाजार के रुझानों, इंटर्नशिप की मांगों और करियर की तैयारी को संबोधित करने के लिए बनाया गया है।",
+        },
+      ],
+    },
+  },
+  registrationGate: {
+    portalBadge: "कृष्णा जन उत्थान संस्थान पोर्टल",
+  },
+  registrationForm: {
+    academic: {
+      collegePlaceholder: "जैसे राजकीय कॉलेज",
+    },
+    consent: {
+      declarationLabel:
+        "घोषणा *: मैं घोषणा करता/करती हूँ कि इस आवेदन में दी गई सभी जानकारी मेरी जानकारी के अनुसार सही, पूर्ण और सत्य है।",
+      termsLabel:
+        "शर्तों का समझौता *: मैं कृष्णा जन उत्थान संस्थान के शैक्षणिक पैनल द्वारा निर्धारित नियमों, आचार संहिता, व्यावहारिक प्रशिक्षण और संरचना से सहमत हूँ।",
+    },
+  },
+  dashboard: {
+    verifiedBadge: "KJUS सत्यापित छात्र",
+  },
+  paymentSuccess: {
+    successDescription:
+      "कृष्णा जन उत्थान संस्थान में नामांकन के लिए धन्यवाद। आपका भुगतान सफलतापूर्वक सत्यापित हो गया है और अब आपके डैशबोर्ड में नामांकित प्रोग्राम और Google Meet क्लास एक्सेस दिखाई देगा।",
+  },
+};
+
 export function getMessages(language: Language): Messages {
-  return translations[language];
+  const baseMessages = translations[language];
+  if (process.env.NEXT_PUBLIC_SITE_VARIANT === "krishana") {
+    const overrides = language === "en" ? krishanaEnglishOverrides : krishanaHindiOverrides;
+    return mergeTranslations(baseMessages, overrides);
+  }
+  return baseMessages;
 }
+
 

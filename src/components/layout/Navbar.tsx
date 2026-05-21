@@ -68,14 +68,17 @@ export function Navbar() {
         {/* Brand Logo & Name */}
         <Link href="/" className="flex items-center gap-3 group transition-transform duration-300 hover:scale-[1.02]">
           <Image
-            src="/nalanda/logo.jpeg"
+            src={currentSite.logo}
             alt={`${currentSite.name} Logo`}
             width={40}
             height={40}
             className="h-10 w-10 rounded-full object-cover border-2 border-[var(--primary)] shadow-sm group-hover:rotate-12 transition-transform duration-300"
           />
           <div className="flex flex-col">
-            <span className="font-serif font-extrabold text-base md:text-lg tracking-tight text-[var(--primary)] leading-tight">
+            <span className={cn(
+              "font-extrabold text-base md:text-lg tracking-tight text-[var(--primary)] leading-tight",
+              process.env.NEXT_PUBLIC_SITE_VARIANT === "krishana" ? "font-sans" : "font-serif"
+            )}>
               {currentSite.name}
             </span>
             <span className="text-[9px] font-bold text-[var(--secondary)] tracking-wider uppercase leading-none mt-0.5">
